@@ -1,0 +1,135 @@
+{
+  "kind": "build_request",
+  "title": "Free Study Materials & Books Website for Engineering Students",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create a public, mobile-friendly website that lets engineering college students browse and access free study materials and books organized by academic structure (e.g., department/branch, semester, subject).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "i want  to create the wibsite for the students of engineering colleges for the study matetirials and book of all subject this helps the student to study without cost"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A visitor can navigate from Home to a browsing experience organized by Department/Branch -> Semester -> Subject.",
+        "Each Subject page shows a list of available resources (study materials/books) with title, type, and a way to open/download the resource.",
+        "The site is usable on mobile and desktop (responsive layout).",
+        "All user-facing text is in English."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement a searchable and filterable resource catalog UI so students can quickly find materials by keyword and filter by department/semester/subject/resource type.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "for the study matetirials and book of all subject"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A search input filters resources by title (and/or description) without page reload.",
+        "Filters exist for at least: Department/Branch, Semester, Subject, and Resource Type (e.g., Notes, Book, Previous Papers, Slides, Lab Manual).",
+        "Empty states are handled (e.g., no results found message)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a backend data model and API for managing the study resources catalog (departments/semesters/subjects/resources) so the frontend can list and query resources.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "create the wibsite ... for the study matetirials and book of all subject"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes query methods to fetch: list of departments, semesters for a department, subjects for a semester, and resources for a subject.",
+        "Resources include at minimum: id, title, resourceType, department, semester, subject, and a URL (or reference) to access the material.",
+        "Data persists across canister upgrades using stable storage patterns appropriate for a single-actor Motoko canister."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Provide a simple admin-only management interface to add, edit, and remove resource entries, while keeping reading/downloading public (no login required for students). Use Internet Identity for admin authentication.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "this helps the student to study without cost"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Public users can browse and open resource links without signing in.",
+        "An Admin page exists where an authenticated admin can create/update/delete departments/subjects/resources (at least resources).",
+        "Only authenticated admins can perform mutations; unauthorized calls are rejected by the backend.",
+        "Admin UI includes basic form validation (required fields, valid URL)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Apply a coherent, distinctive visual theme across the site (colors, typography, spacing, and component styling) suitable for an academic resource library. Do not use a blue+purple primary palette.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "create the wibsite ... for the students of engineering colleges"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Home, browse pages, subject/resource lists, and admin forms share consistent typography, spacing, and component styles.",
+        "The primary color palette is not blue+purple.",
+        "Navigation is clear (header with sections like Browse, Search, Admin (if signed in))."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add generated static image assets (logo and a hero illustration) under frontend/public/assets/generated and display them on the Home page and site header.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "create the wibsite ..."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The specified generated images exist under frontend/public/assets/generated.",
+        "The header uses the logo image.",
+        "The Home page displays the hero illustration and a short English description of the site’s purpose."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor (no additional backend services).",
+    "Do not modify any frontend files under the immutable paths listed in SYSTEM_CONTEXT (compose existing components instead).",
+    "No external databases or third-party auth providers; Internet Identity only for sign-in.",
+    "All user-facing text must be in English."
+  ],
+  "nonGoals": [
+    "Hosting or storing large PDF/book files inside the canister (use links/URLs to materials instead).",
+    "Paid features, subscriptions, or payment processing.",
+    "Real-time chat, notifications, or social features."
+  ],
+  "imageRequirements": {
+    "required": [
+      "Minimal academic logo with book + gear motif, flat vector style (studyhub-logo.dim_512x512.png)",
+      "Engineering students studying with books and laptop, warm neutral palette, flat illustration (studyhub-hero.dim_1600x900.png)"
+    ],
+    "edits": []
+  }
+}

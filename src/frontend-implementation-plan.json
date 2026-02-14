@@ -1,0 +1,214 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "StudyHub — Free Engineering Study Materials Library (Frontend)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Build a public, responsive browsing flow organized by Department/Branch → Semester → Subject with per-subject resource lists and open/download links.",
+      "acceptanceCriteria": [
+        "A visitor can navigate from Home to a browsing experience organized by Department/Branch -> Semester -> Subject.",
+        "Each Subject page shows a list of available resources (study materials/books) with title, type, and a way to open/download the resource.",
+        "The site is usable on mobile and desktop (responsive layout).",
+        "All user-facing text is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "create",
+          "description": "Create the app shell with routing for Home, Browse flow (Department → Semester → Subject), Search, and Admin; include a shared layout wrapper for responsive public navigation."
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Wire the newly created App component and ensure the app bootstraps with the existing QueryClientProvider and InternetIdentityProvider."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "create",
+          "description": "Create a public Home page that introduces the library in English, includes clear CTAs into Browse and Search, and uses responsive layout patterns."
+        },
+        {
+          "path": "frontend/src/pages/BrowsePage.tsx",
+          "operation": "create",
+          "description": "Create a Browse page that displays Department list and supports drilling down to Semester and Subject selections (Department/Branch → Semester → Subject) using data loaded from the backend actor."
+        },
+        {
+          "path": "frontend/src/pages/SubjectPage.tsx",
+          "operation": "create",
+          "description": "Create a Subject page that lists resources for the selected Department/Semester/Subject, showing title, a derived resource type label, and a button/link to open/download the resource URL."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteHeader.tsx",
+          "operation": "create",
+          "description": "Create a responsive header with navigation links to Browse, Search, and Admin (Admin visible/active only when signed in and authorized). Use shadcn-ui components for navigation/menus where appropriate. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/resources/ResourceList.tsx",
+          "operation": "create",
+          "description": "Create a reusable resource list component (title, derived type, open/download action) used by Subject and Search results. Use shadcn-ui components (e.g., Card/Table/Button) for consistent presentation. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/resourceType.ts",
+          "operation": "create",
+          "description": "Add a small utility to derive/display a 'Resource Type' label from available frontend data (e.g., title keywords or URL patterns) to support REQ-1/REQ-2 UI without changing backend types."
+        },
+        {
+          "path": "frontend/src/features/catalog/useCatalog.ts",
+          "operation": "create",
+          "description": "Add React Query hooks that call the backend actor to load departments and traverse semesters/subjects/resources for the browse flow."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement a client-side searchable, filterable resource catalog UI (keyword + department/semester/subject + resource type) with good empty states.",
+      "acceptanceCriteria": [
+        "A search input filters resources by title (and/or description) without page reload.",
+        "Filters exist for at least: Department/Branch, Semester, Subject, and Resource Type (e.g., Notes, Book, Previous Papers, Slides, Lab Manual).",
+        "Empty states are handled (e.g., no results found message)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SearchPage.tsx",
+          "operation": "create",
+          "description": "Create a Search page that loads the catalog (or relevant subset) and provides client-side keyword search and filters for Department, Semester, Subject, and Resource Type, updating results without page reload. Use shadcn-ui Input/Select components for controls. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/resources/ResourceFilters.tsx",
+          "operation": "create",
+          "description": "Create a filter bar component for Department/Semester/Subject/Type and keyword search, designed to be reusable and responsive. Use shadcn-ui Input/Select components. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/resources/EmptyState.tsx",
+          "operation": "create",
+          "description": "Create an empty state component (e.g., 'No results found' / 'Select filters to begin') used by Search and Browse resource views. Use shadcn-ui components for consistent styling. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/catalog/catalogSearch.ts",
+          "operation": "create",
+          "description": "Add pure client-side filtering and search helpers (keyword match on title; optional derived type matching) to support instant UI updates without reload."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire the Search page route and ensure navigation to Search is available from the header."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add an admin-only management UI for creating/updating/removing catalog entries (at least resources) using Internet Identity sign-in for admin authentication, while keeping browsing public.",
+      "acceptanceCriteria": [
+        "Public users can browse and open resource links without signing in.",
+        "An Admin page exists where an authenticated admin can create/update/delete departments/subjects/resources (at least resources).",
+        "Only authenticated admins can perform mutations; unauthorized calls are rejected by the backend.",
+        "Admin UI includes basic form validation (required fields, valid URL)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminPage.tsx",
+          "operation": "create",
+          "description": "Create an Admin page that requires Internet Identity login and checks admin status before showing management tools; include resource create/edit/delete UI and basic form validation (required fields + valid URL). Use shadcn-ui Form/Input/Button/Dialog components where appropriate. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminGuard.tsx",
+          "operation": "create",
+          "description": "Create an admin route guard that (1) prompts login if not authenticated, (2) checks admin role via backend actor, and (3) shows an access denied screen when unauthorized. Use authorization component guidance at a high level and handle authorization errors gracefully. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/auth/LoginButton.tsx",
+          "operation": "create",
+          "description": "Create a Login/Logout button using Internet Identity (per selected 'authorization' component guidance) and clear cached React Query data on logout. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/admin/useAdminStatus.ts",
+          "operation": "create",
+          "description": "Add React Query hooks to query the caller's admin status/role and expose loading/error states for AdminGuard and the header."
+        },
+        {
+          "path": "frontend/src/features/admin/resourceMutations.ts",
+          "operation": "create",
+          "description": "Add React Query mutation hooks for resource add/edit/remove and invalidate relevant catalog queries on success; surface backend authorization failures as user-friendly messages."
+        },
+        {
+          "path": "frontend/src/components/admin/ResourceEditor.tsx",
+          "operation": "create",
+          "description": "Create admin resource editor UI (select Department/Semester/Subject, enter title + URL, edit/delete) with client-side validation. Use shadcn-ui components for form controls and dialogs. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteHeader.tsx",
+          "operation": "modify",
+          "description": "Add Admin navigation that is only visible/enabled when the user is authenticated and is an admin; include the LoginButton in the header. Use shadcn-ui components as needed. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire the Admin route to render AdminGuard → AdminPage, ensuring public routes remain accessible without login."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Apply a consistent academic library theme (not blue+purple primary), with clear navigation and shared styling across pages and forms.",
+      "acceptanceCriteria": [
+        "Home, browse pages, subject/resource lists, and admin forms share consistent typography, spacing, and component styles.",
+        "The primary color palette is not blue+purple.",
+        "Navigation is clear (header with sections like Browse, Search, Admin (if signed in))."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "create",
+          "description": "Define global styles and shadcn-compatible CSS variables for a warm neutral/academic theme (e.g., emerald/green primary + amber accent; explicitly avoid blue+purple primary palette) and consistent typography/spacing."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Adjust Tailwind theme extensions as needed to support the chosen non-blue+purple palette and consistent container/typography defaults."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "create",
+          "description": "Create a shared layout component that standardizes page spacing, max-width containers, and consistent section styling across Home/Browse/Search/Admin. Use shadcn-ui layout primitives as appropriate. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wrap routed pages with the shared AppLayout and ensure the header navigation is consistently displayed."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add the generated logo and hero illustration under frontend/public/assets/generated and display them in the header and Home page.",
+      "acceptanceCriteria": [
+        "The specified generated images exist under frontend/public/assets/generated.",
+        "The header uses the logo image.",
+        "The Home page displays the hero illustration and a short English description of the site’s purpose."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/studyhub-logo.dim_512x512.png",
+          "operation": "create",
+          "description": "Add the generated static logo asset at frontend/public/assets/generated/studyhub-logo.dim_512x512.png for use in the site header branding."
+        },
+        {
+          "path": "frontend/public/assets/generated/studyhub-hero.dim_1600x900.png",
+          "operation": "create",
+          "description": "Add the generated static hero illustration asset at frontend/public/assets/generated/studyhub-hero.dim_1600x900.png for use on the Home page."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteHeader.tsx",
+          "operation": "modify",
+          "description": "Display the logo image from frontend/public/assets/generated/studyhub-logo.dim_512x512.png in the header brand area (responsive sizing)."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Display the hero illustration from frontend/public/assets/generated/studyhub-hero.dim_1600x900.png alongside a short English description of the site’s purpose."
+        }
+      ]
+    }
+  ]
+}

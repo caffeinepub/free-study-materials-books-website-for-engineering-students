@@ -1,0 +1,122 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-public-mobile-friendly-website-that-lets-engineering-college-students-browse-and-access-free-study-materials-and-books-organized-by-academic-structure-e-g-department-branch-semester-subject",
+      "featureTitle": "Create a public, mobile-friendly website that lets engineering college students browse and access free study materials and books organized by academic structure (e.g., department/branch, semester, subject).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/layout/SiteHeader.tsx",
+        "frontend/src/components/resources/ResourceList.tsx",
+        "frontend/src/features/catalog/useCatalog.ts",
+        "frontend/src/lib/resourceType.ts",
+        "frontend/src/main.tsx",
+        "frontend/src/pages/BrowsePage.tsx",
+        "frontend/src/pages/HomePage.tsx",
+        "frontend/src/pages/SubjectPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-searchable-and-filterable-resource-catalog-ui-so-students-can-quickly-find-materials-by-keyword-and-filter-by-department-semester-subject-resource-type",
+      "featureTitle": "Implement a searchable and filterable resource catalog UI so students can quickly find materials by keyword and filter by department/semester/subject/resource type.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/resources/EmptyState.tsx",
+        "frontend/src/components/resources/ResourceFilters.tsx",
+        "frontend/src/features/catalog/catalogSearch.ts",
+        "frontend/src/pages/SearchPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-provide-a-simple-admin-only-management-interface-to-add-edit-and-remove-resource-entries-while-keeping-reading-downloading-public-no-login-required-for-students-use-internet-identity-for-admin-authentication",
+      "featureTitle": "Provide a simple admin-only management interface to add, edit, and remove resource entries, while keeping reading/downloading public (no login required for students). Use Internet Identity for admin authentication.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/admin/AdminGuard.tsx",
+        "frontend/src/components/auth/LoginButton.tsx",
+        "frontend/src/components/layout/SiteHeader.tsx",
+        "frontend/src/features/admin/resourceMutations.ts",
+        "frontend/src/features/admin/useAdminStatus.ts",
+        "frontend/src/pages/AdminPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-apply-a-coherent-distinctive-visual-theme-across-the-site-colors-typography-spacing-and-component-styling-suitable-for-an-academic-resource-library-do-not-use-a-blue-purple-primary-palette",
+      "featureTitle": "Apply a coherent, distinctive visual theme across the site (colors, typography, spacing, and component styling) suitable for an academic resource library. Do not use a blue+purple primary palette.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-generated-static-image-assets-logo-and-a-hero-illustration-under-frontend-public-assets-generated-and-display-them-on-the-home-page-and-site-header",
+      "featureTitle": "Add generated static image assets (logo and a hero illustration) under frontend/public/assets/generated and display them on the Home page and site header.",
+      "files": [
+        "frontend/src/components/layout/SiteHeader.tsx",
+        "frontend/src/pages/HomePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

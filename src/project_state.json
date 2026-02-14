@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Website for engineering college students to access free study materials and books for all subjects.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Minimal academic logo with book + gear motif, flat vector style (studyhub-logo.dim_512x512.png)\n- Engineering students studying with books and laptop, warm neutral palette, flat illustration (studyhub-hero.dim_1600x900.png)",
+  "existing_features": [
+    {
+      "id": "feature-create-a-public-mobile-friendly-website-that-lets-engineering-college-students-browse-and-access-free-study-materials-and-books-organized-by-academic-structure-e-g-department-branch-semester-subject",
+      "title": "Create a public, mobile-friendly website that lets engineering college students browse and access free study materials and books organized by academic structure (e.g., department/branch, semester, subject).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-searchable-and-filterable-resource-catalog-ui-so-students-can-quickly-find-materials-by-keyword-and-filter-by-department-semester-subject-resource-type",
+      "title": "Implement a searchable and filterable resource catalog UI so students can quickly find materials by keyword and filter by department/semester/subject/resource type.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-a-simple-admin-only-management-interface-to-add-edit-and-remove-resource-entries-while-keeping-reading-downloading-public-no-login-required-for-students-use-internet-identity-for-admin-authentication",
+      "title": "Provide a simple admin-only management interface to add, edit, and remove resource entries, while keeping reading/downloading public (no login required for students). Use Internet Identity for admin authentication.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-distinctive-visual-theme-across-the-site-colors-typography-spacing-and-component-styling-suitable-for-an-academic-resource-library-do-not-use-a-blue-purple-primary-palette",
+      "title": "Apply a coherent, distinctive visual theme across the site (colors, typography, spacing, and component styling) suitable for an academic resource library. Do not use a blue+purple primary palette.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-generated-static-image-assets-logo-and-a-hero-illustration-under-frontend-public-assets-generated-and-display-them-on-the-home-page-and-site-header",
+      "title": "Add generated static image assets (logo and a hero illustration) under frontend/public/assets/generated and display them on the Home page and site header.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a website providing free study materials and books for engineering college subjects",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add a backend data model and API for managing the study resources catalog (departments/semesters/subjects/resources) so the frontend can list and query resources.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Free Study Materials & Books Website for Engineering Students",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
