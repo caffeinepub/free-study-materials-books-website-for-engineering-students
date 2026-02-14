@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, ChevronRight, FolderOpen } from 'lucide-react';
 import type { Department, Semester, Subject } from '../backend';
+import { sortSemesters } from '../utils/semesterSort';
 
 export default function BrowsePage() {
   const navigate = useNavigate();
@@ -126,6 +127,8 @@ export default function BrowsePage() {
 
   // Show semester list when department is selected
   if (selectedDepartment) {
+    const sortedSemesters = sortSemesters(selectedDepartment.semesters);
+    
     return (
       <div className="container py-12">
         <div className="mb-8">
@@ -145,7 +148,7 @@ export default function BrowsePage() {
           <p className="text-muted-foreground">Select a semester to view subjects</p>
         </div>
 
-        {selectedDepartment.semesters.length === 0 ? (
+        {sortedSemesters.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -156,8 +159,8 @@ export default function BrowsePage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {selectedDepartment.semesters.map((semester: Semester) => (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {sortedSemesters.map((semester: Semester) => (
               <Card
                 key={semester.id}
                 className="hover:border-primary/50 transition-colors cursor-pointer"

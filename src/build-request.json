@@ -1,135 +1,105 @@
 {
   "kind": "build_request",
-  "title": "Free Study Materials & Books Website for Engineering Students",
+  "title": "Add admin file upload for study materials (host files in-canister and attach to resources)",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Create a public, mobile-friendly website that lets engineering college students browse and access free study materials and books organized by academic structure (e.g., department/branch, semester, subject).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "i want  to create the wibsite for the students of engineering colleges for the study matetirials and book of all subject this helps the student to study without cost"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A visitor can navigate from Home to a browsing experience organized by Department/Branch -> Semester -> Subject.",
-        "Each Subject page shows a list of available resources (study materials/books) with title, type, and a way to open/download the resource.",
-        "The site is usable on mobile and desktop (responsive layout).",
-        "All user-facing text is in English."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Implement a searchable and filterable resource catalog UI so students can quickly find materials by keyword and filter by department/semester/subject/resource type.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "for the study matetirials and book of all subject"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A search input filters resources by title (and/or description) without page reload.",
-        "Filters exist for at least: Department/Branch, Semester, Subject, and Resource Type (e.g., Notes, Book, Previous Papers, Slides, Lab Manual).",
-        "Empty states are handled (e.g., no results found message)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a backend data model and API for managing the study resources catalog (departments/semesters/subjects/resources) so the frontend can list and query resources.",
+      "id": "REQ-14",
+      "text": "Extend the backend resource model to support file-backed materials in addition to external URLs, and expose admin-only APIs to upload and manage files.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-12"
         ],
         "quotes": [
-          "create the wibsite ... for the study matetirials and book of all subject"
+          "yes it is ok give the admin upload materials",
+          "give"
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes query methods to fetch: list of departments, semesters for a department, subjects for a semester, and resources for a subject.",
-        "Resources include at minimum: id, title, resourceType, department, semester, subject, and a URL (or reference) to access the material.",
-        "Data persists across canister upgrades using stable storage patterns appropriate for a single-actor Motoko canister."
+        "Existing resources that only have (title, url) continue to work without modification for public browsing/searching.",
+        "Backend exposes admin-only upload flow to create a stored file (binary content) and returns a stable identifier that can be attached to a resource entry.",
+        "Backend exposes a query method that returns a public download URL (or enough info to construct one) for a stored file-backed resource so students can open/download it without authentication.",
+        "All upload/manage methods trap with a clear Unauthorized error when caller is not an admin.",
+        "Resource CRUD supports creating/editing a resource as either (a) external link or (b) uploaded file-backed link, without breaking existing department/semester/subject data."
       ]
     },
     {
-      "id": "REQ-4",
-      "text": "Provide a simple admin-only management interface to add, edit, and remove resource entries, while keeping reading/downloading public (no login required for students). Use Internet Identity for admin authentication.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "this helps the student to study without cost"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Public users can browse and open resource links without signing in.",
-        "An Admin page exists where an authenticated admin can create/update/delete departments/subjects/resources (at least resources).",
-        "Only authenticated admins can perform mutations; unauthorized calls are rejected by the backend.",
-        "Admin UI includes basic form validation (required fields, valid URL)."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Apply a coherent, distinctive visual theme across the site (colors, typography, spacing, and component styling) suitable for an academic resource library. Do not use a blue+purple primary palette.",
+      "id": "REQ-15",
+      "text": "Add an admin UI workflow in the Admin > Resources tab to upload a file (e.g., PDF) and attach it to a selected Department/Semester/Subject as a new resource, alongside the existing external-URL flow.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-12"
         ],
         "quotes": [
-          "create the wibsite ... for the students of engineering colleges"
+          "yes it is ok give the admin upload materials",
+          "give"
         ]
       },
       "acceptanceCriteria": [
-        "Home, browse pages, subject/resource lists, and admin forms share consistent typography, spacing, and component styles.",
-        "The primary color palette is not blue+purple.",
-        "Navigation is clear (header with sections like Browse, Search, Admin (if signed in))."
+        "Admin can choose between adding a resource via external URL or via file upload.",
+        "File upload UI includes: file picker, title input, department/semester/subject selection, and a submit button that is disabled while uploading.",
+        "After a successful upload + resource creation, the departments query cache is invalidated/refetched and the new resource appears in the admin list without a manual refresh.",
+        "Validation prevents submission when required fields are missing, and shows user-facing errors in English (no crashes).",
+        "No changes are made to immutable hook/component paths listed in SYSTEM_CONTEXT."
       ]
     },
     {
-      "id": "REQ-6",
-      "text": "Add generated static image assets (logo and a hero illustration) under frontend/public/assets/generated and display them on the Home page and site header.",
+      "id": "REQ-16",
+      "text": "Update public resource rendering so that resources backed by uploaded files open/download correctly, while external URL resources keep opening their external link.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-12"
         ],
         "quotes": [
-          "create the wibsite ..."
+          "yes it is ok give the admin upload materials",
+          "give"
         ]
       },
       "acceptanceCriteria": [
-        "The specified generated images exist under frontend/public/assets/generated.",
-        "The header uses the logo image.",
-        "The Home page displays the hero illustration and a short English description of the site’s purpose."
+        "On Browse/Subject/Search pages, clicking “Open” for an external resource still opens the existing resource.url in a new tab.",
+        "For file-backed resources, clicking “Open” opens the generated public download URL in a new tab and successfully downloads/opens the file.",
+        "Resource type badges and existing list styling continue to render without runtime errors."
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "text": "Update the Admin Help section text to include instructions for uploading files directly in PREMJI (in addition to the existing external-hosting instructions), keeping all user-facing text in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4",
+          "msg-12"
+        ],
+        "quotes": [
+          "yes it is ok give the admin upload materials",
+          "give"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin Help section explains both options: (1) upload a file in PREMJI and (2) link to an externally hosted file.",
+        "Help content does not claim PREMJI cannot host files directly (update existing wording to match the new capability)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (no additional backend services).",
-    "Do not modify any frontend files under the immutable paths listed in SYSTEM_CONTEXT (compose existing components instead).",
-    "No external databases or third-party auth providers; Internet Identity only for sign-in.",
-    "All user-facing text must be in English."
+    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
+    "Create/modify backend/migration.mo only if needed to preserve existing stable state when changing the Resource type.",
+    "Do not edit any files under frontend/src/components/ui or any paths listed in frontend.immutablePaths in SYSTEM_CONTEXT.",
+    "Use English for all user-facing UI text."
   ],
   "nonGoals": [
-    "Hosting or storing large PDF/book files inside the canister (use links/URLs to materials instead).",
-    "Paid features, subscriptions, or payment processing.",
-    "Real-time chat, notifications, or social features."
+    "Integrating third-party file hosting providers (Google Drive/Dropbox APIs) or any external storage service.",
+    "Real-time upload progress via WebSockets or push notifications.",
+    "Large-file streaming optimizations beyond a basic chunked upload if required by platform limits."
   ],
   "imageRequirements": {
-    "required": [
-      "Minimal academic logo with book + gear motif, flat vector style (studyhub-logo.dim_512x512.png)",
-      "Engineering students studying with books and laptop, warm neutral palette, flat illustration (studyhub-hero.dim_1600x900.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }

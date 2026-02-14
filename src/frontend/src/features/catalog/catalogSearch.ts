@@ -1,9 +1,7 @@
 import { deriveResourceType } from '../../lib/resourceType';
+import type { Resource } from '../../backend';
 
-interface SearchableResource {
-  id: bigint;
-  title: string;
-  url: string;
+interface SearchableResource extends Resource {
   departmentId?: string;
   semesterId?: string;
   subjectId?: string;
@@ -46,7 +44,7 @@ export function filterResources<T extends SearchableResource>(
 
     // Resource type filter
     if (filters.resourceType) {
-      const derivedType = deriveResourceType(resource.title, resource.url);
+      const derivedType = deriveResourceType(resource);
       if (derivedType !== filters.resourceType) {
         return false;
       }

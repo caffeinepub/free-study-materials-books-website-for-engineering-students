@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from '../../hooks/useActor';
+import type { ResourceContent } from '../../backend';
 
 export function useAddResource() {
   const { actor } = useActor();
@@ -11,16 +12,16 @@ export function useAddResource() {
       semesterId,
       subjectId,
       title,
-      url,
+      content,
     }: {
       departmentId: string;
       semesterId: string;
       subjectId: string;
       title: string;
-      url: string;
+      content: ResourceContent;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addResource(departmentId, semesterId, subjectId, title, url);
+      return actor.addResource(departmentId, semesterId, subjectId, title, content);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['departments'] });
@@ -39,17 +40,17 @@ export function useEditResource() {
       subjectId,
       resourceId,
       title,
-      url,
+      content,
     }: {
       departmentId: string;
       semesterId: string;
       subjectId: string;
       resourceId: bigint;
       title: string;
-      url: string;
+      content: ResourceContent;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.editResource(departmentId, semesterId, subjectId, resourceId, title, url);
+      return actor.editResource(departmentId, semesterId, subjectId, resourceId, title, content);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['departments'] });

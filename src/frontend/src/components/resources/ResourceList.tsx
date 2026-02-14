@@ -20,13 +20,23 @@ interface ResourceListProps {
 }
 
 export default function ResourceList({ resources, showContext = false }: ResourceListProps) {
+  const getResourceUrl = (resource: Resource): string => {
+    if (resource.content.__kind__ === 'url') {
+      return resource.content.url;
+    } else {
+      // For externalBlob, get the direct URL
+      return resource.content.externalBlob.getDirectURL();
+    }
+  };
+
   return (
     <div className="space-y-4">
       {resources.map((resource) => {
-        const resourceType = deriveResourceType(resource.title, resource.url);
+        const resourceType = deriveResourceType(resource);
+        const resourceUrl = getResourceUrl(resource);
         
         return (
-          <Card key={resource.id}>
+          <Card key={resource.id.toString()}>
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -63,18 +73,12 @@ export default function ResourceList({ resources, showContext = false }: Resourc
                   </div>
                 </div>
                 <Button
-                  asChild
+                  size="sm"
+                  onClick={() => window.open(resourceUrl, '_blank')}
                   className="flex-shrink-0"
                 >
-                  <a
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="gap-2"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Open
-                  </a>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open
                 </Button>
               </div>
             </CardHeader>

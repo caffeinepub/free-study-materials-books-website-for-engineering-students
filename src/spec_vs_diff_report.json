@@ -1,93 +1,38 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T08:46:36.115Z",
-  "summary": "The diff adds a new Motoko backend actor with an authorization mixin and a new React frontend with routing, browse/search/admin pages scaffolding, catalog querying via `getAllDepartments`, admin-only guard with Internet Identity login, and UI components for filtering and listing resources. Some BuildRequest requirements are only partially evidenced in the diff (notably backend API completeness, stable upgrade persistence, and required static image assets).",
+  "generatedAt": "2026-02-14T09:39:41.359Z",
+  "summary": "Diff implements a new Resource.content variant supporting either external URLs or uploaded file blobs, adds a migration to preserve existing stable data, updates public resource opening logic to handle file-backed resources, and updates Admin Help text. However, backend admin-only upload/manage APIs and some frontend UX/validation details for the upload workflow are not clearly evidenced in the provided diff summary (backend/main.mo and ResourceManager.tsx are truncated).",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Backend data model must include resources with at minimum: id, title, resourceType, department, semester, subject, and a URL; and backend must expose query methods to fetch departments, semesters for a department, subjects for a semester, and resources for a subject.",
-      "reason": "In the visible backend code, `Resource` only contains `id`, `title`, and `url`, and only `getAllDepartments()` is clearly shown as a public query. Additional required query methods and required resource fields are not evidenced in the provided diff excerpt (file is truncated, so they may exist but are not shown).",
+      "id": "REQ-14",
+      "requirement": "Backend exposes admin-only APIs to upload/manage stored files (binary content) and returns a stable identifier attachable to a resource; provides a public query method to construct a download URL; traps Unauthorized for non-admin on upload/manage methods.",
+      "reason": "The diff shows the Resource model extended with #externalBlob and inclusion of blob-storage mixin, but does not show any explicit admin-only upload/manage methods, stable identifier return, or a public query method for download URL construction. backend/main.mo is truncated before any such APIs would be visible, so these items are not evidenced.",
       "evidence": [
         "backend/main.mo (truncated)"
       ]
     },
     {
-      "id": "REQ-3",
-      "requirement": "Data persists across canister upgrades using stable storage patterns appropriate for a single-actor Motoko canister.",
-      "reason": "No `stable var`, preupgrade/postupgrade hooks, or other stable-storage pattern is evidenced in the provided backend excerpt (file is truncated, so it may exist but is not shown).",
+      "id": "REQ-15",
+      "requirement": "Admin upload UI: submit button disabled while uploading; validation prevents submission when required fields missing and shows user-facing errors in English (no crashes).",
+      "reason": "ResourceManager.tsx shows state for form fields (including file) and uploadProgress, plus a source selector, but the diff excerpt is truncated before submit handling. No explicit evidence of disabled submit during upload or validation/error messaging is shown.",
       "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Add generated static image assets (logo and hero illustration) under `frontend/public/assets/generated`.",
-      "reason": "The header references `/assets/generated/studyhub-logo.dim_512x512.png`, but the diff summary does not show the actual image files being added under `frontend/public/assets/generated` (the diff notes some added files were omitted).",
-      "evidence": [
-        "frontend/src/components/layout/SiteHeader.tsx",
-        "File diff summary: Omitted files due to limits: added=14"
+        "frontend/src/components/admin/ResourceManager.tsx (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "User profile management endpoints and permissions (get/save user profiles)",
-      "reason": "The BuildRequest does not mention user profiles; the backend adds `UserProfile` type and methods guarded by a `#user` permission.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "description": "Footer attribution link to caffeine.ai with referral parameters",
-      "reason": "The BuildRequest does not request external attribution/marketing links in the UI; the footer includes a 'Built with ... caffeine.ai' link.",
-      "evidence": [
-        "frontend/src/components/layout/SiteFooter.tsx"
-      ]
-    },
-    {
-      "description": "Secret-parameter based access-control initialization (`caffeineAdminToken`)",
-      "reason": "The BuildRequest specifies Internet Identity for admin authentication, but does not request an additional secret token passed via URL for initializing access control.",
-      "evidence": [
-        "frontend/src/hooks/useActor.ts"
-      ]
-    }
-  ],
-  "confidence": 0.68,
+  "hallucinated_features": [],
+  "confidence": 0.55,
   "changed_files": [
-    "all_files_summary.json",
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.css",
-    "frontend/index.html",
-    "frontend/src/App.tsx",
-    "frontend/src/components/admin/AdminGuard.tsx",
-    "frontend/src/components/admin/DepartmentManager.tsx",
+    "frontend/src/components/admin/AdminHelpSection.tsx",
     "frontend/src/components/admin/ResourceManager.tsx",
-    "frontend/src/components/auth/LoginButton.tsx",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/SiteFooter.tsx",
-    "frontend/src/components/layout/SiteHeader.tsx",
-    "frontend/src/components/resources/EmptyState.tsx",
-    "frontend/src/components/resources/ResourceFilters.tsx",
     "frontend/src/components/resources/ResourceList.tsx",
     "frontend/src/features/admin/resourceMutations.ts",
-    "frontend/src/features/admin/structureMutations.ts",
-    "frontend/src/features/admin/useAdminStatus.ts",
     "frontend/src/features/catalog/catalogSearch.ts",
-    "frontend/src/features/catalog/useCatalog.ts",
-    "frontend/src/hooks/useActor.ts",
-    "frontend/src/hooks/useInternetIdentity.ts",
-    "frontend/src/index.css",
     "frontend/src/lib/resourceType.ts",
-    "frontend/src/main.tsx",
-    "frontend/src/pages/AdminPage.tsx",
-    "frontend/src/pages/BrowsePage.tsx",
-    "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/SearchPage.tsx",
-    "frontend/src/pages/SubjectPage.tsx",
-    "frontend/src/utils/urlParams.ts",
-    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

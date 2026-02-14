@@ -28,14 +28,14 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <div className="flex items-center gap-4 md:gap-6">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
             <img 
               src="/assets/generated/studyhub-logo.dim_512x512.png" 
-              alt="StudyHub Logo" 
-              className="h-10 w-10"
+              alt="PREMJI Logo" 
+              className="h-9 w-9 sm:h-10 sm:w-10"
             />
-            <span className="font-heading text-xl font-bold hidden sm:inline">StudyHub</span>
+            <span className="font-heading text-lg sm:text-xl font-bold">PREMJI</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -53,7 +53,7 @@ export default function SiteHeader() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="hidden md:block">
             <LoginButton />
           </div>

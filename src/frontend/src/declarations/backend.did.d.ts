@@ -15,7 +15,14 @@ export interface Department {
   'name' : string,
   'semesters' : Array<Semester>,
 }
-export interface Resource { 'id' : bigint, 'url' : string, 'title' : string }
+export type ExternalBlob = Uint8Array;
+export interface Resource {
+  'id' : bigint,
+  'title' : string,
+  'content' : ResourceContent,
+}
+export type ResourceContent = { 'url' : string } |
+  { 'externalBlob' : ExternalBlob };
 export interface Semester {
   'id' : string,
   'subjects' : Array<Subject>,
@@ -30,22 +37,46 @@ export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addDepartment' : ActorMethod<[string, string], undefined>,
   'addResource' : ActorMethod<
-    [string, string, string, string, string],
+    [string, string, string, string, ResourceContent],
     undefined
   >,
-  'addSemester' : ActorMethod<[string, string, string], undefined>,
   'addSubject' : ActorMethod<[string, string, string, string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'editDepartment' : ActorMethod<[string, string], undefined>,
   'editResource' : ActorMethod<
-    [string, string, string, bigint, string, string],
+    [string, string, string, bigint, string, ResourceContent],
     undefined
   >,
-  'editSemester' : ActorMethod<[string, string, string], undefined>,
   'editSubject' : ActorMethod<[string, string, string, string], undefined>,
   'getAllDepartments' : ActorMethod<[], Array<Department>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -54,7 +85,6 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'removeDepartment' : ActorMethod<[string], undefined>,
   'removeResource' : ActorMethod<[string, string, string, bigint], undefined>,
-  'removeSemester' : ActorMethod<[string, string], undefined>,
   'removeSubject' : ActorMethod<[string, string, string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
 }

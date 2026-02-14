@@ -46,51 +46,6 @@ export function useRemoveDepartment() {
   });
 }
 
-export function useAddSemester() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ departmentId, id, name }: { departmentId: string; id: string; name: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.addSemester(departmentId, id, name);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
-    },
-  });
-}
-
-export function useEditSemester() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ departmentId, semesterId, name }: { departmentId: string; semesterId: string; name: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.editSemester(departmentId, semesterId, name);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
-    },
-  });
-}
-
-export function useRemoveSemester() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ departmentId, semesterId }: { departmentId: string; semesterId: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.removeSemester(departmentId, semesterId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
-    },
-  });
-}
-
 export function useAddSubject() {
   const { actor } = useActor();
   const queryClient = useQueryClient();

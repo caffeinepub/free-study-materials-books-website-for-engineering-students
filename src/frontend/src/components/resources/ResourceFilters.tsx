@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Search } from 'lucide-react';
 import type { Department } from '../../backend';
+import { sortSemesters } from '../../utils/semesterSort';
 
 interface ResourceFiltersProps {
   departments: Department[];
@@ -20,6 +21,7 @@ interface ResourceFiltersProps {
 }
 
 const RESOURCE_TYPES = ['Notes', 'Book', 'Previous Papers', 'Slides', 'Lab Manual', 'Other'];
+const ALL_SENTINEL = '__all__';
 
 export default function ResourceFilters({
   departments,
@@ -35,7 +37,30 @@ export default function ResourceFilters({
   onTypeChange,
 }: ResourceFiltersProps) {
   const department = departments.find((d) => d.id === selectedDepartment);
-  const semester = department?.semesters.find((s) => s.id === selectedSemester);
+  const sortedSemesters = department ? sortSemesters(department.semesters) : [];
+  const semester = sortedSemesters.find((s) => s.id === selectedSemester);
+
+  // Convert empty string to sentinel for display, and sentinel back to empty string for state
+  const departmentValue = selectedDepartment || ALL_SENTINEL;
+  const semesterValue = selectedSemester || ALL_SENTINEL;
+  const subjectValue = selectedSubject || ALL_SENTINEL;
+  const typeValue = selectedType || ALL_SENTINEL;
+
+  const handleDepartmentChange = (value: string) => {
+    onDepartmentChange(value === ALL_SENTINEL ? '' : value);
+  };
+
+  const handleSemesterChange = (value: string) => {
+    onSemesterChange(value === ALL_SENTINEL ? '' : value);
+  };
+
+  const handleSubjectChange = (value: string) => {
+    onSubjectChange(value === ALL_SENTINEL ? '' : value);
+  };
+
+  const handleTypeChange = (value: string) => {
+    onTypeChange(value === ALL_SENTINEL ? '' : value);
+  };
 
   return (
     <Card>
@@ -57,12 +82,12 @@ export default function ResourceFilters({
 
           <div className="space-y-2">
             <Label htmlFor="department">Department</Label>
-            <Select value={selectedDepartment} onValueChange={onDepartmentChange}>
+            <Select value={departmentValue} onValueChange={handleDepartmentChange}>
               <SelectTrigger id="department">
                 <SelectValue placeholder="All Departments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Departments</SelectItem>
+                <SelectItem value={ALL_SENTINEL}>All Departments</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id}>
                     {dept.name}
@@ -75,16 +100,16 @@ export default function ResourceFilters({
           <div className="space-y-2">
             <Label htmlFor="semester">Semester</Label>
             <Select
-              value={selectedSemester}
-              onValueChange={onSemesterChange}
+              value={semesterValue}
+              onValueChange={handleSemesterChange}
               disabled={!selectedDepartment}
             >
               <SelectTrigger id="semester">
                 <SelectValue placeholder="All Semesters" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Semesters</SelectItem>
-                {department?.semesters.map((sem) => (
+                <SelectItem value={ALL_SENTINEL}>All Semesters</SelectItem>
+                {sortedSemesters.map((sem) => (
                   <SelectItem key={sem.id} value={sem.id}>
                     {sem.name}
                   </SelectItem>
@@ -96,15 +121,15 @@ export default function ResourceFilters({
           <div className="space-y-2">
             <Label htmlFor="subject">Subject</Label>
             <Select
-              value={selectedSubject}
-              onValueChange={onSubjectChange}
+              value={subjectValue}
+              onValueChange={handleSubjectChange}
               disabled={!selectedSemester}
             >
               <SelectTrigger id="subject">
                 <SelectValue placeholder="All Subjects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Subjects</SelectItem>
+                <SelectItem value={ALL_SENTINEL}>All Subjects</SelectItem>
                 {semester?.subjects.map((subj) => (
                   <SelectItem key={subj.id} value={subj.id}>
                     {subj.name}
@@ -116,12 +141,12 @@ export default function ResourceFilters({
 
           <div className="space-y-2 md:col-span-2 lg:col-span-1">
             <Label htmlFor="type">Resource Type</Label>
-            <Select value={selectedType} onValueChange={onTypeChange}>
+            <Select value={typeValue} onValueChange={handleTypeChange}>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value={ALL_SENTINEL}>All Types</SelectItem>
                 {RESOURCE_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}

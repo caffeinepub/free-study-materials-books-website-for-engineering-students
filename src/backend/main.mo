@@ -2,30 +2,44 @@ import Map "mo:core/Map";
 import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
+import Nat "mo:core/Nat";
+import List "mo:core/List";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
+import MixinStorage "blob-storage/Mixin";
+import Storage "blob-storage/Storage";
 
+// Enabling data migration on upgrades
+(with migration = Migration.run)
 actor {
-  type Resource = {
+  include MixinStorage();
+
+  public type Resource = {
     id : Nat;
     title : Text;
-    url : Text;
+    content : ResourceContent;
   };
 
-  type Subject = {
+  public type ResourceContent = {
+    #url : Text;
+    #externalBlob : Storage.ExternalBlob;
+  };
+
+  public type Subject = {
     id : Text;
     name : Text;
     resources : [Resource];
   };
 
-  type Semester = {
+  public type Semester = {
     id : Text;
     name : Text;
     subjects : [Subject];
   };
 
-  type Department = {
+  public type Department = {
     id : Text;
     name : Text;
     semesters : [Semester];
@@ -41,6 +55,19 @@ actor {
   let departments = Map.empty<Text, Department>();
   let userProfiles = Map.empty<Principal, UserProfile>();
   var nextResourceId = 0;
+
+  // The content field of Resources in defaultSemesters is always #url("")
+  let defaultSemesters : [Semester] = Array.tabulate(
+    8,
+    func(i) {
+      let semesterNum = i + 1;
+      {
+        id = "semester" # semesterNum.toText();
+        name = "Semester " # semesterNum.toText();
+        subjects = [];
+      };
+    },
+  );
 
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -64,7 +91,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Public read access - no authentication required for students
+  // Public read access
   public query func getAllDepartments() : async [Department] {
     departments.values().toArray();
   };
@@ -77,29 +104,9 @@ actor {
     let department : Department = {
       id;
       name;
-      semesters = [];
+      semesters = defaultSemesters;
     };
     departments.add(id, department);
-  };
-
-  public shared ({ caller }) func addSemester(departmentId : Text, id : Text, name : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can add semesters");
-    };
-    let department = switch (departments.get(departmentId)) {
-      case (?d) { d };
-      case (null) { Runtime.trap("Department does not exist") };
-    };
-    let semester : Semester = {
-      id;
-      name;
-      subjects = [];
-    };
-    let updatedDepartment : Department = {
-      department with
-      semesters = department.semesters.concat([semester]);
-    };
-    departments.add(departmentId, updatedDepartment);
   };
 
   public shared ({ caller }) func addSubject(departmentId : Text, semesterId : Text, id : Text, name : Text) : async () {
@@ -137,7 +144,7 @@ actor {
     departments.add(departmentId, updatedDepartment);
   };
 
-  public shared ({ caller }) func addResource(departmentId : Text, semesterId : Text, subjectId : Text, title : Text, url : Text) : async () {
+  public shared ({ caller }) func addResource(departmentId : Text, semesterId : Text, subjectId : Text, title : Text, content : ResourceContent) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add resources");
     };
@@ -161,7 +168,7 @@ actor {
                   resources = subject.resources.concat([{
                     id = nextResourceId;
                     title;
-                    url;
+                    content;
                   }]);
                 };
               } else {
@@ -201,37 +208,6 @@ actor {
       name = name;
     };
     departments.add(id, updatedDepartment);
-  };
-
-  public shared ({ caller }) func editSemester(departmentId : Text, semesterId : Text, name : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can edit semesters");
-    };
-    let department = switch (departments.get(departmentId)) {
-      case (?d) { d };
-      case (null) { Runtime.trap("Department does not exist") };
-    };
-
-    let updatedSemesters = Array.tabulate(
-      department.semesters.size(),
-      func(i) {
-        let semester = department.semesters[i];
-        if (semester.id == semesterId) {
-          {
-            semester with
-            name = name;
-          };
-        } else {
-          semester;
-        };
-      }
-    );
-
-    let updatedDepartment : Department = {
-      department with
-      semesters = updatedSemesters;
-    };
-    departments.add(departmentId, updatedDepartment);
   };
 
   public shared ({ caller }) func editSubject(departmentId : Text, semesterId : Text, subjectId : Text, name : Text) : async () {
@@ -279,7 +255,7 @@ actor {
     departments.add(departmentId, updatedDepartment);
   };
 
-  public shared ({ caller }) func editResource(departmentId : Text, semesterId : Text, subjectId : Text, resourceId : Nat, title : Text, url : Text) : async () {
+  public shared ({ caller }) func editResource(departmentId : Text, semesterId : Text, subjectId : Text, resourceId : Nat, title : Text, content : ResourceContent) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can edit resources");
     };
@@ -306,7 +282,7 @@ actor {
                       {
                         id = resourceId;
                         title;
-                        url;
+                        content;
                       };
                     } else {
                       resource;
@@ -345,28 +321,6 @@ actor {
       Runtime.trap("Unauthorized: Only admins can remove departments");
     };
     departments.remove(id);
-  };
-
-  public shared ({ caller }) func removeSemester(departmentId : Text, semesterId : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can remove semesters");
-    };
-    let department = switch (departments.get(departmentId)) {
-      case (?d) { d };
-      case (null) { Runtime.trap("Department does not exist") };
-    };
-
-    let updatedSemesters = department.semesters.filter(
-      func(semester : Semester) : Bool {
-        semester.id != semesterId;
-      }
-    );
-
-    let updatedDepartment : Department = {
-      department with
-      semesters = updatedSemesters;
-    };
-    departments.add(departmentId, updatedDepartment);
   };
 
   public shared ({ caller }) func removeSubject(departmentId : Text, semesterId : Text, subjectId : Text) : async () {
@@ -455,3 +409,4 @@ actor {
     departments.add(departmentId, updatedDepartment);
   };
 };
+

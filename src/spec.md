@@ -1,14 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Build a public, mobile-friendly study resources website for engineering students with structured browsing, fast search/filtering, and an admin-only interface to manage the catalog.
+**Goal:** Allow admins to upload study material files directly into the backend and attach them to resources, while keeping existing external-link resources working as-is.
 
 **Planned changes:**
-- Create responsive public pages: Home and a browse flow organized as Department/Branch → Semester → Subject → Resource list with open/download links.
-- Add a searchable, filterable catalog UI (keyword search + filters for department/semester/subject/resource type) with clear empty states.
-- Implement a single Motoko-canister backend data model and API to persist and query departments/semesters/subjects/resources (stable storage across upgrades).
-- Add an admin-only management page using Internet Identity to create/update/delete catalog entries (at least resources), with backend authorization and basic form validation.
-- Apply a consistent academic visual theme (not a blue+purple primary palette) across all pages, with clear navigation.
-- Add and display generated static assets (logo in header, hero illustration on Home) and an English description of the site’s purpose.
+- Extend the backend resource model to support file-backed materials in addition to external URLs, including admin-only APIs to upload/manage files and a public method to retrieve a download URL (or equivalent info) for students.
+- Ensure all admin upload/manage backend methods reject non-admin callers with a clear Unauthorized error, and preserve existing department/semester/subject resource data.
+- Add an admin workflow in Admin > Resources to create a resource via either external URL or file upload (file picker + required metadata), with validation, disabled submit during upload, and automatic refetch so the new resource appears immediately.
+- Update public resource rendering so external URL resources still open the external link, while file-backed resources open/download via the generated public download URL.
+- Update Admin Help text to document both options (upload in PREMJI and external hosting), in English.
 
-**User-visible outcome:** Students can browse and search engineering study materials and books by academic structure and open/download resources without signing in, while authenticated admins can securely manage the resource catalog.
+**User-visible outcome:** Admins can upload files (e.g., PDFs) and attach them as resources to specific Department/Semester/Subject entries, and students can open/download those uploaded materials from browse/search pages just like external links.

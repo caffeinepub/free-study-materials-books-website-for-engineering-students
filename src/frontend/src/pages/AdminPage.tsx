@@ -2,6 +2,7 @@ import AdminGuard from '../components/admin/AdminGuard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DepartmentManager from '../components/admin/DepartmentManager';
 import ResourceManager from '../components/admin/ResourceManager';
+import AdminHelpSection from '../components/admin/AdminHelpSection';
 
 export default function AdminPage() {
   return (
@@ -21,6 +22,7 @@ export default function AdminPage() {
           </TabsList>
 
           <TabsContent value="resources" className="space-y-6">
+            <AdminHelpSection />
             <ResourceManager />
           </TabsContent>
 

@@ -1,11 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Website for engineering college students to access free study materials and books for all subjects.",
+  "projectStateVersion": 9,
+  "summary": "Website (PREMJI) for engineering college students in Tamil Nadu to access free study materials and books, organized by department and subject, with search and admin management.",
   "architectural_notes": [],
-  "known_issues": [],
+  "known_issues": [
+    "Search button click triggers an error in the UI."
+  ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Minimal academic logo with book + gear motif, flat vector style (studyhub-logo.dim_512x512.png)\n- Engineering students studying with books and laptop, warm neutral palette, flat illustration (studyhub-hero.dim_1600x900.png)",
   "existing_features": [
     {
       "id": "feature-create-a-public-mobile-friendly-website-that-lets-engineering-college-students-browse-and-access-free-study-materials-and-books-organized-by-academic-structure-e-g-department-branch-semester-subject",
@@ -46,6 +47,70 @@
         "REQ-6"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-runtime-error-that-occurs-when-navigating-to-search-and-interacting-with-the-filters-so-that-clicking-the-search-entry-point-and-using-filter-dropdowns-never-throws-an-exception",
+      "title": "Fix the runtime error that occurs when navigating to Search and interacting with the filters so that clicking the Search entry point and using filter dropdowns never throws an exception.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-global-header-branding-so-the-website-name-shown-at-the-top-of-every-page-is-premji",
+      "title": "Update the global header branding so the website name shown at the top of every page is “PREMJI”.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-global-site-header-branding-so-the-website-name-premji-is-shown-next-to-the-logo-on-all-screen-sizes-not-hidden-on-small-mobile-screens",
+      "title": "Update the global site header branding so the website name “PREMJI” is shown next to the logo on all screen sizes (not hidden on small/mobile screens).",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-academic-structure-so-engineering-programs-have-exactly-8-semesters-available-per-department-by-default-semester-1-through-semester-8-and-ensure-browse-search-admin-structure-views-reflect-this-updated-structure",
+      "title": "Update the academic structure so engineering programs have exactly 8 semesters available per department by default (Semester 1 through Semester 8), and ensure Browse/Search/admin structure views reflect this updated structure.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-admin-facing-help-section-in-the-admin-panel-that-explains-how-an-admin-can-upload-publish-materials-and-add-them-to-premji-using-the-existing-add-resource-flow-title-public-url-including-required-sharing-visibility-settings-for-links",
+      "title": "Add an admin-facing help section in the Admin Panel that explains how an admin can upload/publish materials and add them to PREMJI using the existing “Add Resource” flow (title + public URL), including required sharing/visibility settings for links.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-admin-ui-workflow-in-the-admin-resources-tab-to-upload-a-file-e-g-pdf-and-attach-it-to-a-selected-department-semester-subject-as-a-new-resource-alongside-the-existing-external-url-flow",
+      "title": "Add an admin UI workflow in the Admin > Resources tab to upload a file (e.g., PDF) and attach it to a selected Department/Semester/Subject as a new resource, alongside the existing external-URL flow.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-public-resource-rendering-so-that-resources-backed-by-uploaded-files-open-download-correctly-while-external-url-resources-keep-opening-their-external-link",
+      "title": "Update public resource rendering so that resources backed by uploaded files open/download correctly, while external URL resources keep opening their external link.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-help-section-text-to-include-instructions-for-uploading-files-directly-in-premji-in-addition-to-the-existing-external-hosting-instructions-keeping-all-user-facing-text-in-english",
+      "title": "Update the Admin Help section text to include instructions for uploading files directly in PREMJI (in addition to the existing external-hosting instructions), keeping all user-facing text in English.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -62,10 +127,76 @@
         "REQ-3"
       ],
       "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add Tamil Nadu engineering college departments and populate subjects under each department so the catalog is usable out of the box.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Display the website name “PREMJI” at the top (header) on all pages.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Fix the error shown when clicking the Search button in the resource catalog UI.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Pre-populate the catalog with a comprehensive set of common Tamil Nadu engineering (BE/BTech) departments/branches and include an initial semester + subject structure under each department so that the Browse and Search pages are usable without admin setup.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Show the website name “PREMJI” next to/near the logo in the global header.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Update the academic structure to reflect 8 semesters for engineering programs across departments/branches.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Seed the catalog with some initial books/materials (sample content) so the site is not empty on first use.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Provide an admin workflow/UI for uploading materials (files) and attaching them to departments/semesters/subjects/resources.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Seed the catalog with a small set of sample books/study materials (resources) across at least a few departments/semesters/subjects so that students see non-empty content on first use.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Extend the backend resource model to support file-backed materials in addition to external URLs, and expose admin-only APIs to upload and manage files.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Free Study Materials & Books Website for Engineering Students",
+  "projectName": "PREMJI",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

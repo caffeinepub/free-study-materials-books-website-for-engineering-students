@@ -2,525 +2,376 @@ import { useState } from 'react';
 import { useGetAllDepartments } from '../../features/catalog/useCatalog';
 import {
   useAddDepartment,
-  useAddSemester,
   useAddSubject,
   useEditDepartment,
-  useEditSemester,
   useEditSubject,
   useRemoveDepartment,
-  useRemoveSemester,
   useRemoveSubject,
 } from '../../features/admin/structureMutations';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, FolderPlus } from 'lucide-react';
-import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Edit2, Trash2, FolderOpen } from 'lucide-react';
+import type { Department, Semester, Subject } from '../../backend';
+import { sortSemesters } from '../../utils/semesterSort';
+
+type DialogMode = 'add-department' | 'edit-department' | 'add-subject' | 'edit-subject' | null;
+
+interface DialogState {
+  mode: DialogMode;
+  departmentId?: string;
+  semesterId?: string;
+  subjectId?: string;
+  currentName?: string;
+}
 
 export default function DepartmentManager() {
   const { data: departments, isLoading } = useGetAllDepartments();
   const addDepartment = useAddDepartment();
-  const addSemester = useAddSemester();
-  const addSubject = useAddSubject();
   const editDepartment = useEditDepartment();
-  const editSemester = useEditSemester();
-  const editSubject = useEditSubject();
   const removeDepartment = useRemoveDepartment();
-  const removeSemester = useRemoveSemester();
+  const addSubject = useAddSubject();
+  const editSubject = useEditSubject();
   const removeSubject = useRemoveSubject();
 
-  const [deptDialogOpen, setDeptDialogOpen] = useState(false);
-  const [deptName, setDeptName] = useState('');
-  const [deptId, setDeptId] = useState('');
-  const [editingDept, setEditingDept] = useState<string | null>(null);
+  const [dialogState, setDialogState] = useState<DialogState>({ mode: null });
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: 'department' | 'subject';
+    departmentId: string;
+    semesterId?: string;
+    subjectId?: string;
+    name: string;
+  } | null>(null);
+  const [formName, setFormName] = useState('');
+  const [formId, setFormId] = useState('');
 
-  const [semDialogOpen, setSemDialogOpen] = useState(false);
-  const [semName, setSemName] = useState('');
-  const [semId, setSemId] = useState('');
-  const [semDeptId, setSemDeptId] = useState('');
-  const [editingSem, setEditingSem] = useState<{ deptId: string; semId: string } | null>(null);
+  const openDialog = (state: DialogState) => {
+    setDialogState(state);
+    setFormName(state.currentName || '');
+    setFormId('');
+  };
 
-  const [subjDialogOpen, setSubjDialogOpen] = useState(false);
-  const [subjName, setSubjName] = useState('');
-  const [subjId, setSubjId] = useState('');
-  const [subjDeptId, setSubjDeptId] = useState('');
-  const [subjSemId, setSubjSemId] = useState('');
-  const [editingSubj, setEditingSubj] = useState<{ deptId: string; semId: string; subjId: string } | null>(null);
+  const closeDialog = () => {
+    setDialogState({ mode: null });
+    setFormName('');
+    setFormId('');
+  };
 
-  const handleAddDepartment = async () => {
-    if (!deptName.trim() || !deptId.trim()) {
-      toast.error('Please fill in all fields');
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { mode, departmentId, semesterId, subjectId } = dialogState;
+
     try {
-      await addDepartment.mutateAsync({ id: deptId, name: deptName });
-      toast.success('Department added successfully');
-      setDeptDialogOpen(false);
-      setDeptName('');
-      setDeptId('');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to add department');
+      if (mode === 'add-department') {
+        await addDepartment.mutateAsync({ id: formId, name: formName });
+      } else if (mode === 'edit-department' && departmentId) {
+        await editDepartment.mutateAsync({ id: departmentId, name: formName });
+      } else if (mode === 'add-subject' && departmentId && semesterId) {
+        await addSubject.mutateAsync({
+          departmentId,
+          semesterId,
+          id: formId,
+          name: formName,
+        });
+      } else if (mode === 'edit-subject' && departmentId && semesterId && subjectId) {
+        await editSubject.mutateAsync({
+          departmentId,
+          semesterId,
+          subjectId,
+          name: formName,
+        });
+      }
+      closeDialog();
+    } catch (error) {
+      console.error('Operation failed:', error);
     }
   };
 
-  const handleEditDepartment = async () => {
-    if (!editingDept || !deptName.trim()) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    try {
-      await editDepartment.mutateAsync({ id: editingDept, name: deptName });
-      toast.success('Department updated successfully');
-      setDeptDialogOpen(false);
-      setDeptName('');
-      setEditingDept(null);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update department');
-    }
-  };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
 
-  const handleAddSemester = async () => {
-    if (!semName.trim() || !semId.trim() || !semDeptId) {
-      toast.error('Please fill in all fields');
-      return;
-    }
     try {
-      await addSemester.mutateAsync({ departmentId: semDeptId, id: semId, name: semName });
-      toast.success('Semester added successfully');
-      setSemDialogOpen(false);
-      setSemName('');
-      setSemId('');
-      setSemDeptId('');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to add semester');
-    }
-  };
-
-  const handleEditSemester = async () => {
-    if (!editingSem || !semName.trim()) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    try {
-      await editSemester.mutateAsync({
-        departmentId: editingSem.deptId,
-        semesterId: editingSem.semId,
-        name: semName,
-      });
-      toast.success('Semester updated successfully');
-      setSemDialogOpen(false);
-      setSemName('');
-      setEditingSem(null);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update semester');
-    }
-  };
-
-  const handleAddSubject = async () => {
-    if (!subjName.trim() || !subjId.trim() || !subjDeptId || !subjSemId) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    try {
-      await addSubject.mutateAsync({
-        departmentId: subjDeptId,
-        semesterId: subjSemId,
-        id: subjId,
-        name: subjName,
-      });
-      toast.success('Subject added successfully');
-      setSubjDialogOpen(false);
-      setSubjName('');
-      setSubjId('');
-      setSubjDeptId('');
-      setSubjSemId('');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to add subject');
-    }
-  };
-
-  const handleEditSubject = async () => {
-    if (!editingSubj || !subjName.trim()) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    try {
-      await editSubject.mutateAsync({
-        departmentId: editingSubj.deptId,
-        semesterId: editingSubj.semId,
-        subjectId: editingSubj.subjId,
-        name: subjName,
-      });
-      toast.success('Subject updated successfully');
-      setSubjDialogOpen(false);
-      setSubjName('');
-      setEditingSubj(null);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update subject');
+      if (deleteTarget.type === 'department') {
+        await removeDepartment.mutateAsync(deleteTarget.departmentId);
+      } else if (deleteTarget.type === 'subject' && deleteTarget.semesterId && deleteTarget.subjectId) {
+        await removeSubject.mutateAsync({
+          departmentId: deleteTarget.departmentId,
+          semesterId: deleteTarget.semesterId,
+          subjectId: deleteTarget.subjectId,
+        });
+      }
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error('Delete failed:', error);
     }
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-96" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-32" />
+        </CardContent>
+      </Card>
+    );
   }
 
+  const isSubmitting =
+    addDepartment.isPending ||
+    editDepartment.isPending ||
+    addSubject.isPending ||
+    editSubject.isPending;
+
   return (
-    <div className="space-y-6">
+    <>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Manage Structure</CardTitle>
-              <CardDescription>Add and organize departments, semesters, and subjects</CardDescription>
+              <CardTitle>Organizational Structure</CardTitle>
+              <CardDescription>
+                Manage departments, semesters, and subjects. Each department has 8 semesters by default.
+              </CardDescription>
             </div>
-            <Dialog open={deptDialogOpen} onOpenChange={setDeptDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => {
-                    setEditingDept(null);
-                    setDeptName('');
-                    setDeptId('');
-                  }}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Department
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{editingDept ? 'Edit Department' : 'Add Department'}</DialogTitle>
-                  <DialogDescription>
-                    {editingDept ? 'Update the department name' : 'Create a new department'}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  {!editingDept && (
-                    <div className="space-y-2">
-                      <Label htmlFor="dept-id">Department ID</Label>
-                      <Input
-                        id="dept-id"
-                        placeholder="e.g., cse"
-                        value={deptId}
-                        onChange={(e) => setDeptId(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="dept-name">Department Name</Label>
-                    <Input
-                      id="dept-name"
-                      placeholder="e.g., Computer Science Engineering"
-                      value={deptName}
-                      onChange={(e) => setDeptName(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    onClick={editingDept ? handleEditDepartment : handleAddDepartment}
-                    disabled={addDepartment.isPending || editDepartment.isPending}
-                  >
-                    {editingDept ? 'Update' : 'Add'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={() => openDialog({ mode: 'add-department' })}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Department
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
           {!departments || departments.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No departments yet. Add your first department to get started.
+            <div className="py-12 text-center">
+              <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-heading text-lg font-semibold mb-2">No Departments</h3>
+              <p className="text-muted-foreground mb-4">
+                Get started by adding your first department.
+              </p>
             </div>
           ) : (
-            <Accordion type="single" collapsible className="w-full">
-              {departments.map((dept) => (
-                <AccordionItem key={dept.id} value={dept.id}>
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <span className="font-medium">{dept.name}</span>
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setEditingDept(dept.id);
-                            setDeptName(dept.name);
-                            setDeptDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="ghost">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Department</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete {dept.name} and all its semesters, subjects, and resources.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={async () => {
-                                  try {
-                                    await removeDepartment.mutateAsync(dept.id);
-                                    toast.success('Department deleted');
-                                  } catch (error: any) {
-                                    toast.error(error.message || 'Failed to delete');
-                                  }
-                                }}
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setSemDeptId(dept.id);
-                            setSemName('');
-                            setSemId('');
-                            setEditingSem(null);
-                            setSemDialogOpen(true);
-                          }}
-                        >
-                          <FolderPlus className="h-4 w-4 mr-1" />
-                          Add Semester
-                        </Button>
+            <Accordion type="multiple" className="w-full">
+              {departments.map((dept: Department) => {
+                const sortedSemesters = sortSemesters(dept.semesters);
+                
+                return (
+                  <AccordionItem key={dept.id} value={dept.id}>
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center justify-between w-full pr-4">
+                        <span className="font-semibold">{dept.name}</span>
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              openDialog({
+                                mode: 'edit-department',
+                                departmentId: dept.id,
+                                currentName: dept.name,
+                              })
+                            }
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              setDeleteTarget({
+                                type: 'department',
+                                departmentId: dept.id,
+                                name: dept.name,
+                              })
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="pl-4 space-y-2">
-                      {dept.semesters.length === 0 ? (
-                        <div className="text-sm text-muted-foreground py-2">No semesters yet</div>
-                      ) : (
-                        dept.semesters.map((sem) => (
-                          <div key={sem.id} className="border rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium">{sem.name}</span>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setEditingSem({ deptId: dept.id, semId: sem.id });
-                                    setSemName(sem.name);
-                                    setSemDialogOpen(true);
-                                  }}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button size="sm" variant="ghost">
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete Semester</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        This will delete {sem.name} and all its subjects and resources.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={async () => {
-                                          try {
-                                            await removeSemester.mutateAsync({ departmentId: dept.id, semesterId: sem.id });
-                                            toast.success('Semester deleted');
-                                          } catch (error: any) {
-                                            toast.error(error.message || 'Failed to delete');
-                                          }
-                                        }}
-                                      >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setSubjDeptId(dept.id);
-                                    setSubjSemId(sem.id);
-                                    setSubjName('');
-                                    setSubjId('');
-                                    setEditingSubj(null);
-                                    setSubjDialogOpen(true);
-                                  }}
-                                >
-                                  <Plus className="h-4 w-4 mr-1" />
-                                  Add Subject
-                                </Button>
-                              </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pl-4 space-y-4">
+                        {sortedSemesters.map((semester: Semester) => (
+                          <div key={semester.id} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-medium">{semester.name}</h4>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  openDialog({
+                                    mode: 'add-subject',
+                                    departmentId: dept.id,
+                                    semesterId: semester.id,
+                                  })
+                                }
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add Subject
+                              </Button>
                             </div>
-                            <div className="space-y-1">
-                              {sem.subjects.length === 0 ? (
-                                <div className="text-sm text-muted-foreground">No subjects yet</div>
-                              ) : (
-                                sem.subjects.map((subj) => (
-                                  <div key={subj.id} className="flex items-center justify-between text-sm bg-muted/50 rounded p-2">
-                                    <span>{subj.name}</span>
+                            {semester.subjects.length === 0 ? (
+                              <p className="text-sm text-muted-foreground">No subjects yet</p>
+                            ) : (
+                              <div className="space-y-2">
+                                {semester.subjects.map((subject: Subject) => (
+                                  <div
+                                    key={subject.id}
+                                    className="flex items-center justify-between p-2 rounded bg-muted/50"
+                                  >
+                                    <span className="text-sm">{subject.name}</span>
                                     <div className="flex items-center gap-1">
                                       <Button
-                                        size="sm"
                                         variant="ghost"
-                                        onClick={() => {
-                                          setEditingSubj({ deptId: dept.id, semId: sem.id, subjId: subj.id });
-                                          setSubjName(subj.name);
-                                          setSubjDialogOpen(true);
-                                        }}
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={() =>
+                                          openDialog({
+                                            mode: 'edit-subject',
+                                            departmentId: dept.id,
+                                            semesterId: semester.id,
+                                            subjectId: subject.id,
+                                            currentName: subject.name,
+                                          })
+                                        }
                                       >
-                                        <Edit className="h-3 w-3" />
+                                        <Edit2 className="h-3 w-3" />
                                       </Button>
-                                      <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                          <Button size="sm" variant="ghost">
-                                            <Trash2 className="h-3 w-3" />
-                                          </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                          <AlertDialogHeader>
-                                            <AlertDialogTitle>Delete Subject</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                              This will delete {subj.name} and all its resources.
-                                            </AlertDialogDescription>
-                                          </AlertDialogHeader>
-                                          <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction
-                                              onClick={async () => {
-                                                try {
-                                                  await removeSubject.mutateAsync({
-                                                    departmentId: dept.id,
-                                                    semesterId: sem.id,
-                                                    subjectId: subj.id,
-                                                  });
-                                                  toast.success('Subject deleted');
-                                                } catch (error: any) {
-                                                  toast.error(error.message || 'Failed to delete');
-                                                }
-                                              }}
-                                            >
-                                              Delete
-                                            </AlertDialogAction>
-                                          </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                      </AlertDialog>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={() =>
+                                          setDeleteTarget({
+                                            type: 'subject',
+                                            departmentId: dept.id,
+                                            semesterId: semester.id,
+                                            subjectId: subject.id,
+                                            name: subject.name,
+                                          })
+                                        }
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
                                     </div>
                                   </div>
-                                ))
-                              )}
-                            </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
             </Accordion>
           )}
         </CardContent>
       </Card>
 
-      <Dialog open={semDialogOpen} onOpenChange={setSemDialogOpen}>
+      <Dialog open={dialogState.mode !== null} onOpenChange={closeDialog}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingSem ? 'Edit Semester' : 'Add Semester'}</DialogTitle>
-            <DialogDescription>
-              {editingSem ? 'Update the semester name' : 'Create a new semester'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {!editingSem && (
+          <form onSubmit={handleSubmit}>
+            <DialogHeader>
+              <DialogTitle>
+                {dialogState.mode === 'add-department' && 'Add Department'}
+                {dialogState.mode === 'edit-department' && 'Edit Department'}
+                {dialogState.mode === 'add-subject' && 'Add Subject'}
+                {dialogState.mode === 'edit-subject' && 'Edit Subject'}
+              </DialogTitle>
+              <DialogDescription>
+                {(dialogState.mode === 'add-department' || dialogState.mode === 'add-subject') &&
+                  'Enter a unique ID and name.'}
+                {(dialogState.mode === 'edit-department' || dialogState.mode === 'edit-subject') &&
+                  'Update the name.'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {(dialogState.mode === 'add-department' || dialogState.mode === 'add-subject') && (
+                <div className="space-y-2">
+                  <Label htmlFor="id">ID</Label>
+                  <Input
+                    id="id"
+                    value={formId}
+                    onChange={(e) => setFormId(e.target.value)}
+                    placeholder="e.g., cs, math, physics"
+                    required
+                  />
+                </div>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="sem-id">Semester ID</Label>
+                <Label htmlFor="name">Name</Label>
                 <Input
-                  id="sem-id"
-                  placeholder="e.g., sem1"
-                  value={semId}
-                  onChange={(e) => setSemId(e.target.value)}
+                  id="name"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="Enter name"
+                  required
                 />
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="sem-name">Semester Name</Label>
-              <Input
-                id="sem-name"
-                placeholder="e.g., Semester 1"
-                value={semName}
-                onChange={(e) => setSemName(e.target.value)}
-              />
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={editingSem ? handleEditSemester : handleAddSemester}
-              disabled={addSemester.isPending || editSemester.isPending}
-            >
-              {editingSem ? 'Update' : 'Add'}
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={closeDialog}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={subjDialogOpen} onOpenChange={setSubjDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingSubj ? 'Edit Subject' : 'Add Subject'}</DialogTitle>
-            <DialogDescription>
-              {editingSubj ? 'Update the subject name' : 'Create a new subject'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {!editingSubj && (
-              <div className="space-y-2">
-                <Label htmlFor="subj-id">Subject ID</Label>
-                <Input
-                  id="subj-id"
-                  placeholder="e.g., math101"
-                  value={subjId}
-                  onChange={(e) => setSubjId(e.target.value)}
-                />
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="subj-name">Subject Name</Label>
-              <Input
-                id="subj-name"
-                placeholder="e.g., Engineering Mathematics I"
-                value={subjName}
-                onChange={(e) => setSubjName(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={editingSubj ? handleEditSubject : handleAddSubject}
-              disabled={addSubject.isPending || editSubject.isPending}
+      <AlertDialog open={deleteTarget !== null} onOpenChange={() => setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{deleteTarget?.name}" and all its contents. This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {editingSubj ? 'Update' : 'Add'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

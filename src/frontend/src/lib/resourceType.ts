@@ -1,30 +1,54 @@
-export function deriveResourceType(title: string, url: string): string {
-  const lowerTitle = title.toLowerCase();
-  const lowerUrl = url.toLowerCase();
+import type { Resource } from '../backend';
 
-  // Check title keywords
-  if (lowerTitle.includes('note') || lowerTitle.includes('lecture')) {
+export type ResourceType = 'Notes' | 'Book' | 'Previous Papers' | 'Slides' | 'Lab Manual' | 'Other';
+
+export function deriveResourceType(resource: Resource): ResourceType {
+  const title = resource.title.toLowerCase();
+  
+  // Get URL if available for additional context
+  let url = '';
+  if (resource.content.__kind__ === 'url') {
+    url = resource.content.url.toLowerCase();
+  } else if (resource.content.__kind__ === 'externalBlob') {
+    // For uploaded files, we can try to get the URL but it's optional
+    try {
+      url = resource.content.externalBlob.getDirectURL().toLowerCase();
+    } catch {
+      // If getDirectURL fails, just use empty string
+      url = '';
+    }
+  }
+
+  // Check title and URL for keywords
+  if (title.includes('note') || title.includes('summary')) {
     return 'Notes';
   }
-  if (lowerTitle.includes('book') || lowerTitle.includes('textbook') || lowerTitle.includes('ebook')) {
+  if (title.includes('book') || title.includes('textbook') || title.includes('ebook')) {
     return 'Book';
   }
-  if (lowerTitle.includes('previous') || lowerTitle.includes('paper') || lowerTitle.includes('exam') || lowerTitle.includes('question')) {
+  if (
+    title.includes('previous') ||
+    title.includes('paper') ||
+    title.includes('exam') ||
+    title.includes('question')
+  ) {
     return 'Previous Papers';
   }
-  if (lowerTitle.includes('slide') || lowerTitle.includes('presentation') || lowerTitle.includes('ppt')) {
+  if (title.includes('slide') || title.includes('presentation') || title.includes('ppt')) {
     return 'Slides';
   }
-  if (lowerTitle.includes('lab') || lowerTitle.includes('manual') || lowerTitle.includes('practical')) {
+  if (title.includes('lab') || title.includes('manual') || title.includes('practical')) {
     return 'Lab Manual';
   }
 
-  // Check URL patterns
-  if (lowerUrl.includes('.ppt') || lowerUrl.includes('slides')) {
-    return 'Slides';
-  }
-  if (lowerUrl.includes('book') || lowerUrl.includes('.epub')) {
-    return 'Book';
+  // Check URL patterns if available
+  if (url) {
+    if (url.includes('slide') || url.includes('.ppt')) {
+      return 'Slides';
+    }
+    if (url.includes('book') || url.includes('textbook')) {
+      return 'Book';
+    }
   }
 
   return 'Other';
