@@ -1,28 +1,6 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix /admin gating to correctly render Admin Panel for seeded admin",
-  "requirements": [
-    {
-      "id": "REQ-4",
-      "summary": "Ensure /admin renders the Admin Panel for authenticated admins while still showing Authentication Required (unauthenticated) and Access Denied (non-admin).",
-      "acceptanceCriteria": [
-        "When logged in with the seeded admin principal, navigating to `/admin` renders the Admin Panel UI (title and tabs) and does not display the “Access Denied” card shown in the screenshot.",
-        "When logged in with a non-admin principal, `/admin` continues to show “Access Denied”.",
-        "When unauthenticated, `/admin` continues to show the “Authentication Required” login prompt."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/admin/useAdminStatus.ts",
-          "operation": "modify",
-          "description": "Harden and align admin-status fetching with the backend `isCallerAdmin()` behavior: ensure the query refetches on mount/navigation (to avoid stale cached false values after login/role changes) and add a defensive check that the actor method exists before calling. Use the authorization component’s intended admin-check capability via `actor.isCallerAdmin()`; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminGuard.tsx",
-          "operation": "modify",
-          "description": "Adjust gating logic to only show the Access Denied UI when admin status is definitively `false` (not when still undefined/loading), preventing false negatives; keep existing unauthenticated login prompt and error states intact. This uses the authorization component’s role-based gating pattern; verify the component's usage instructions before implementing."
-        }
-      ]
-    }
-  ]
+  "title": "PREMJI StudyHub — Frontend-only plan (no changes required for backend-only request)",
+  "requirements": []
 }

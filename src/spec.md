@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Fix admin access so the intended seeded admin Internet Identity principal can access `/admin` after fresh install and across upgrades.
+**Goal:** Add a backend `isCallerAdmin()` canister query so the frontend `AdminGuard` / `useGetAdminStatus()` can reliably check whether the current caller is an admin.
 
 **Planned changes:**
-- Seed principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state on fresh install.
-- Add a backend Candid method `isCallerAdmin()` that returns a boolean consistent with existing admin permission checks.
-- Ensure admin assignment persists across canister upgrades with minimal upgrade-safe persistence (adding `backend/migration.mo` only if required).
-- Update frontend admin gating so `/admin` renders the Admin Panel for the seeded admin principal, while keeping current behavior for non-admin and unauthenticated users.
+- Implement `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns `true` when `caller` is an admin and `false` otherwise using the existing access-control state.
+- Ensure the method is exposed in the generated Candid/actor interface and is callable as `actor.isCallerAdmin()` from the frontend without trapping for non-admin users.
 
-**User-visible outcome:** When logged in as `019c5b4d-8259-74a9-955b-9afe01e4fab7`, `/admin` shows the Admin Panel (not “Access Denied”), and admin-gated actions no longer fail as unauthorized; non-admin users still see “Access Denied” and unauthenticated users still see the login prompt.
+**User-visible outcome:** Admin users can pass the frontend permission check (and non-admin users are denied normally) without the error that `isCallerAdmin` is missing from the actor.

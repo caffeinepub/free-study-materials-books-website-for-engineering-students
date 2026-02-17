@@ -2,9 +2,12 @@ import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BookOpen, Search, GraduationCap, FileText, Zap } from 'lucide-react';
+import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import MyPrincipalBox from '@/components/account/MyPrincipalBox';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { identity } = useInternetIdentity();
 
   const features = [
     {
@@ -28,6 +31,8 @@ export default function HomePage() {
       description: 'All study materials are completely free for engineering students.',
     },
   ];
+
+  const isAuthenticated = !!identity;
 
   return (
     <div className="flex flex-col">
@@ -77,6 +82,15 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Principal Box Section - Only shown when authenticated */}
+      {isAuthenticated && (
+        <section className="container py-8">
+          <div className="max-w-2xl mx-auto">
+            <MyPrincipalBox />
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
       <section className="container py-16 md:py-24">

@@ -7,7 +7,7 @@
   "frontend/src/components/layout/SiteFooter.tsx": "Site footer with copyright notice, Admin Portal link with icon, and caffeine.ai attribution link with UTM tracking parameters.",
   "frontend/src/components/auth/LoginButton.tsx": "Internet Identity login/logout button component that clears React Query cache on logout and handles authentication state.",
   "frontend/src/components/admin/AdminGuard.tsx": "Route guard component that shows authentication prompt for unauthenticated users, loading state during permission checks, explicit error state with retry button when admin status check fails, and access denied screen only when isAdmin is explicitly false (not undefined), preventing false negatives from cached or stale data.",
-  "frontend/src/pages/HomePage.tsx": "Landing page with hero section featuring generated illustration, feature cards, and CTAs to browse and search study materials.",
+  "frontend/src/pages/HomePage.tsx": "Landing page with hero section, feature cards, and CTAs; now conditionally displays MyPrincipalBox component after the hero section when user is authenticated via Internet Identity.",
   "frontend/src/pages/BrowsePage.tsx": "Hierarchical browsing interface for navigating Department → Semester → Subject with breadcrumb navigation, empty states, and sorted semester display using the semester sort utility.",
   "frontend/src/pages/SubjectPage.tsx": "Subject detail page displaying all resources for a specific subject with breadcrumb navigation and context information.",
   "frontend/src/pages/SearchPage.tsx": "Search and filter interface for finding resources by keyword, department, semester, subject, and resource type with result count display and flattened resource listing.",
@@ -24,5 +24,7 @@
   "frontend/src/features/admin/resourceMutations.ts": "React Query mutation hooks for resource CRUD operations using ResourceContent type (url or externalBlob) with automatic department cache invalidation.",
   "frontend/src/lib/resourceType.ts": "Utility function that derives resource type from Resource objects with ResourceContent, safely handling both url and externalBlob content types.",
   "frontend/src/utils/semesterSort.ts": "Utility function that sorts semesters in numeric order (Semester 1 → Semester 8) by extracting numeric values from semester names with fallback to string comparison.",
-  "frontend/src/components/admin/AdminHelpSection.tsx": "Admin help component with comprehensive instructions for both uploading files directly to PREMJI and linking to externally hosted files, including tips for organization."
+  "frontend/src/components/admin/AdminHelpSection.tsx": "Admin help component with comprehensive instructions for both uploading files directly to PREMJI and linking to externally hosted files, including tips for organization.",
+  "frontend/src/utils/copyToClipboard.ts": "Utility function that copies text to clipboard using modern Clipboard API with fallback support for older browsers, returning a promise that resolves to success status.",
+  "frontend/src/components/account/MyPrincipalBox.tsx": "Reusable component that displays the logged-in user's principal ID in a Card with copy-to-clipboard functionality, visual success confirmation, and helper text explaining its purpose."
 }

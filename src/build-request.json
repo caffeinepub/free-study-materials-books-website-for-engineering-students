@@ -1,85 +1,36 @@
 {
   "kind": "build_request",
-  "title": "Fix admin access: seed admin principal and make /admin stop showing Access Denied",
+  "title": "Add backend isCallerAdmin() method for AdminGuard",
+  "projectName": "PREMJI StudyHub",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Seed the user Principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state so that after a fresh canister install, logging in with that Internet Identity is granted admin permissions.",
+      "text": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages:user-1"
+          "recent-messages"
         ],
         "quotes": [
-          "still it showing the  same please fix it fast"
+          "add isCallerAdmin into backend now (FINAL)",
+          "Your backend STILL has no isCallerAdmin function. The frontend checks it inside AdminGuard, so admin will always fail."
         ]
       },
       "acceptanceCriteria": [
-        "After a fresh deploy/install, the principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` is recognized as admin by the canister (using the same permission mechanism used by admin CRUD methods).",
-        "When authenticated as `019c5b4d-8259-74a9-955b-9afe01e4fab7`, admin-gated calls such as add/edit/remove operations no longer trap with \"Unauthorized\"."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Expose a backend method `isCallerAdmin()` that matches the frontend usage (the frontend calls `actor.isCallerAdmin()`), returning a boolean that is consistent with the AccessControl permission checks currently used by admin CRUD methods.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "recent-messages:user-1"
-        ],
-        "quotes": [
-          "still it showing the  same please fix it fast"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The canister exports a callable method named `isCallerAdmin` (Candid) that returns `true` when the caller has `#admin` permission and `false` otherwise.",
-        "Calling `isCallerAdmin()` does not trap for normal callers; it returns a boolean."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Ensure the seeded admin assignment persists across canister upgrades. If the AccessControl admin state is not currently persisted in stable state, add minimal upgrade-safe persistence, and add `backend/migration.mo` only if required by existing state per the project migration policy.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "recent-messages:user-1"
-        ],
-        "quotes": [
-          "still it showing the  same please fix it fast"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After upgrading the canister (without reinstall), a principal that was admin before upgrade remains admin after upgrade.",
-        "No state is lost or reset unexpectedly during upgrade; persistence changes are minimal and limited to what is needed for admin assignment continuity."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Fix the admin page gating so it no longer shows the “Access Denied” screen for the intended seeded admin user; once logged in as the seeded admin principal, `/admin` must render the Admin Panel content (tabs and managers) instead of the access-denied card.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages:user-1"
-        ],
-        "quotes": [
-          "still it showing the  same please fix it fast"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When logged in with the seeded admin principal, navigating to `/admin` renders the Admin Panel UI (title and tabs) and does not display the “Access Denied” card shown in the screenshot.",
-        "When logged in with a non-admin principal, `/admin` continues to show “Access Denied”.",
-        "When unauthenticated, `/admin` continues to show the “Authentication Required” login prompt."
+        "The canister exposes `isCallerAdmin : () -> (bool) query` (or equivalent) in the generated Candid/actor interface.",
+        "Calling `isCallerAdmin()` from an authenticated identity returns `true` when the caller is an admin and `false` otherwise.",
+        "The method does not trap for non-admin callers; it must return `false` rather than throwing.",
+        "Frontend admin status query (`useGetAdminStatus`) no longer throws the error `isCallerAdmin method not available on actor` and `AdminGuard` can proceed past the permission-check step for admin users."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor with all logic in `backend/main.mo`; generate `backend/migration.mo` only if required by existing state (conditional migration policy).",
-    "Do not edit files under `frontend/src/components/ui` or other immutable frontend paths listed in SYSTEM_CONTEXT."
+    "Backend must remain a single Motoko actor in `backend/main.mo`; do not introduce additional backend services."
   ],
   "nonGoals": [
-    "Adding third-party authentication providers (only Internet Identity is supported).",
-    "Implementing new admin management UI for adding/removing admins (this request is limited to fixing access for the specified seeded principal)."
+    "Changing frontend admin-guard UI/UX logic.",
+    "Reworking how admin principals are seeded or managed beyond exposing the missing `isCallerAdmin()` method."
   ],
   "imageRequirements": {
     "required": [],

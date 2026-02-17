@@ -1,63 +1,31 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T09:56:19.735Z",
+  "generatedAt": "2026-02-17T09:55:46.148Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 1,
+    "total": 1,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Seed the user Principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state so that after a fresh canister install, logging in with that Internet Identity is granted admin permissions.",
+        "summary": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Expose a backend method `isCallerAdmin()` that matches the frontend usage (the frontend calls `actor.isCallerAdmin()`), returning a boolean that is consistent with the AccessControl permission checks currently used by admin CRUD methods.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Ensure the seeded admin assignment persists across canister upgrades. If the AccessControl admin state is not currently persisted in stable state, add minimal upgrade-safe persistence, and add `backend/migration.mo` only if required by existing state per the project migration policy.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Fix the admin page gating so it no longer shows the “Access Denied” screen for the intended seeded admin user; once logged in as the seeded admin principal, `/admin` must render the Admin Panel content (tabs and managers) instead of the access-denied card.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/admin/useAdminStatus.ts",
-          "frontend/src/components/admin/AdminGuard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/admin/useAdminStatus.ts",
-          "frontend/src/components/admin/AdminGuard.tsx"
-        ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
-    "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/admin/AdminGuard.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/features/admin/useAdminStatus.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

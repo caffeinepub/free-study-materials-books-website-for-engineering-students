@@ -1,49 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "Add backend support for admin access checks by implementing isCallerAdmin so frontend AdminGuard can validate admins correctly.",
+  "architectural_notes": [
+    "Frontend AdminGuard depends on backend exposing a query isCallerAdmin() endpoint for admin checks."
+  ],
   "known_issues": [
-    "Admin page still shows the same behavior after latest deployment; user requests urgent fix."
+    "Admin access currently fails because backend lacks isCallerAdmin(), causing frontend AdminGuard checks to always fail."
   ],
   "isFixRequest": true,
-  "existing_features": [
-    {
-      "id": "feature-fix-the-admin-page-gating-so-it-no-longer-shows-the-access-denied-screen-for-the-intended-seeded-admin-user-once-logged-in-as-the-seeded-admin-principal-admin-must-render-the-admin-panel-content-tabs-and-managers-instead-of-the-access-denied-card",
-      "title": "Fix the admin page gating so it no longer shows the “Access Denied” screen for the intended seeded admin user; once logged in as the seeded admin principal, `/admin` must render the Admin Panel content (tabs and managers) instead of the access-denied card.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    }
-  ],
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Seed the user Principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state so that after a fresh canister install, logging in with that Internet Identity is granted admin permissions.",
+      "summary": "Implement backend query function isCallerAdmin() to support admin access checks used by frontend AdminGuard",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Expose a backend method `isCallerAdmin()` that matches the frontend usage (the frontend calls `actor.isCallerAdmin()`), returning a boolean that is consistent with the AccessControl permission checks currently used by admin CRUD methods.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Ensure the seeded admin assignment persists across canister upgrades. If the AccessControl admin state is not currently persisted in stable state, add minimal upgrade-safe persistence, and add `backend/migration.mo` only if required by existing state per the project migration policy.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
     }
   ],
-  "projectName": "Fix admin access: seed admin principal and make /admin stop showing Access Denied",
+  "projectName": "PREMJI StudyHub",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
