@@ -1,4 +1,5 @@
-import { Heart } from 'lucide-react';
+import { Heart, Settings } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
@@ -10,8 +11,17 @@ export default function SiteFooter() {
     <footer className="border-t bg-muted/30">
       <div className="container py-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-sm text-muted-foreground">
-            © {currentYear} StudyHub. Free study materials for engineering students.
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              © {currentYear} StudyHub. Free study materials for engineering students.
+            </div>
+            <Link 
+              to="/admin" 
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Settings className="h-4 w-4" />
+              <span>Admin Portal</span>
+            </Link>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>Built with</span>

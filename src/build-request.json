@@ -1,102 +1,85 @@
 {
   "kind": "build_request",
-  "title": "Add admin file upload for study materials (host files in-canister and attach to resources)",
-  "priority": "normal",
+  "title": "Fix admin access: seed admin principal and make /admin stop showing Access Denied",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-14",
-      "text": "Extend the backend resource model to support file-backed materials in addition to external URLs, and expose admin-only APIs to upload and manage files.",
+      "id": "REQ-1",
+      "text": "Seed the user Principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state so that after a fresh canister install, logging in with that Internet Identity is granted admin permissions.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-12"
+          "recent-messages:user-1"
         ],
         "quotes": [
-          "yes it is ok give the admin upload materials",
-          "give"
+          "still it showing the  same please fix it fast"
         ]
       },
       "acceptanceCriteria": [
-        "Existing resources that only have (title, url) continue to work without modification for public browsing/searching.",
-        "Backend exposes admin-only upload flow to create a stored file (binary content) and returns a stable identifier that can be attached to a resource entry.",
-        "Backend exposes a query method that returns a public download URL (or enough info to construct one) for a stored file-backed resource so students can open/download it without authentication.",
-        "All upload/manage methods trap with a clear Unauthorized error when caller is not an admin.",
-        "Resource CRUD supports creating/editing a resource as either (a) external link or (b) uploaded file-backed link, without breaking existing department/semester/subject data."
+        "After a fresh deploy/install, the principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` is recognized as admin by the canister (using the same permission mechanism used by admin CRUD methods).",
+        "When authenticated as `019c5b4d-8259-74a9-955b-9afe01e4fab7`, admin-gated calls such as add/edit/remove operations no longer trap with \"Unauthorized\"."
       ]
     },
     {
-      "id": "REQ-15",
-      "text": "Add an admin UI workflow in the Admin > Resources tab to upload a file (e.g., PDF) and attach it to a selected Department/Semester/Subject as a new resource, alongside the existing external-URL flow.",
-      "target": "frontend",
+      "id": "REQ-2",
+      "text": "Expose a backend method `isCallerAdmin()` that matches the frontend usage (the frontend calls `actor.isCallerAdmin()`), returning a boolean that is consistent with the AccessControl permission checks currently used by admin CRUD methods.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-12"
+          "recent-messages:user-1"
         ],
         "quotes": [
-          "yes it is ok give the admin upload materials",
-          "give"
+          "still it showing the  same please fix it fast"
         ]
       },
       "acceptanceCriteria": [
-        "Admin can choose between adding a resource via external URL or via file upload.",
-        "File upload UI includes: file picker, title input, department/semester/subject selection, and a submit button that is disabled while uploading.",
-        "After a successful upload + resource creation, the departments query cache is invalidated/refetched and the new resource appears in the admin list without a manual refresh.",
-        "Validation prevents submission when required fields are missing, and shows user-facing errors in English (no crashes).",
-        "No changes are made to immutable hook/component paths listed in SYSTEM_CONTEXT."
+        "The canister exports a callable method named `isCallerAdmin` (Candid) that returns `true` when the caller has `#admin` permission and `false` otherwise.",
+        "Calling `isCallerAdmin()` does not trap for normal callers; it returns a boolean."
       ]
     },
     {
-      "id": "REQ-16",
-      "text": "Update public resource rendering so that resources backed by uploaded files open/download correctly, while external URL resources keep opening their external link.",
-      "target": "frontend",
+      "id": "REQ-3",
+      "text": "Ensure the seeded admin assignment persists across canister upgrades. If the AccessControl admin state is not currently persisted in stable state, add minimal upgrade-safe persistence, and add `backend/migration.mo` only if required by existing state per the project migration policy.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-12"
+          "recent-messages:user-1"
         ],
         "quotes": [
-          "yes it is ok give the admin upload materials",
-          "give"
+          "still it showing the  same please fix it fast"
         ]
       },
       "acceptanceCriteria": [
-        "On Browse/Subject/Search pages, clicking “Open” for an external resource still opens the existing resource.url in a new tab.",
-        "For file-backed resources, clicking “Open” opens the generated public download URL in a new tab and successfully downloads/opens the file.",
-        "Resource type badges and existing list styling continue to render without runtime errors."
+        "After upgrading the canister (without reinstall), a principal that was admin before upgrade remains admin after upgrade.",
+        "No state is lost or reset unexpectedly during upgrade; persistence changes are minimal and limited to what is needed for admin assignment continuity."
       ]
     },
     {
-      "id": "REQ-17",
-      "text": "Update the Admin Help section text to include instructions for uploading files directly in PREMJI (in addition to the existing external-hosting instructions), keeping all user-facing text in English.",
+      "id": "REQ-4",
+      "text": "Fix the admin page gating so it no longer shows the “Access Denied” screen for the intended seeded admin user; once logged in as the seeded admin principal, `/admin` must render the Admin Panel content (tabs and managers) instead of the access-denied card.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-12"
+          "recent-messages:user-1"
         ],
         "quotes": [
-          "yes it is ok give the admin upload materials",
-          "give"
+          "still it showing the  same please fix it fast"
         ]
       },
       "acceptanceCriteria": [
-        "Admin Help section explains both options: (1) upload a file in PREMJI and (2) link to an externally hosted file.",
-        "Help content does not claim PREMJI cannot host files directly (update existing wording to match the new capability)."
+        "When logged in with the seeded admin principal, navigating to `/admin` renders the Admin Panel UI (title and tabs) and does not display the “Access Denied” card shown in the screenshot.",
+        "When logged in with a non-admin principal, `/admin` continues to show “Access Denied”.",
+        "When unauthenticated, `/admin` continues to show the “Authentication Required” login prompt."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
-    "Create/modify backend/migration.mo only if needed to preserve existing stable state when changing the Resource type.",
-    "Do not edit any files under frontend/src/components/ui or any paths listed in frontend.immutablePaths in SYSTEM_CONTEXT.",
-    "Use English for all user-facing UI text."
+    "Backend must remain a single Motoko actor with all logic in `backend/main.mo`; generate `backend/migration.mo` only if required by existing state (conditional migration policy).",
+    "Do not edit files under `frontend/src/components/ui` or other immutable frontend paths listed in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Integrating third-party file hosting providers (Google Drive/Dropbox APIs) or any external storage service.",
-    "Real-time upload progress via WebSockets or push notifications.",
-    "Large-file streaming optimizations beyond a basic chunked upload if required by platform limits."
+    "Adding third-party authentication providers (only Internet Identity is supported).",
+    "Implementing new admin management UI for adding/removing admins (this request is limited to fixing access for the specified seeded principal)."
   ],
   "imageRequirements": {
     "required": [],

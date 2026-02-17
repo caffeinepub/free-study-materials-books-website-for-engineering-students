@@ -1,88 +1,63 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T09:39:41.362Z",
+  "generatedAt": "2026-02-16T09:56:19.735Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 4,
-    "implemented": 3,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-14",
-        "summary": "Extend the backend resource model to support file-backed materials in addition to external URLs, and expose admin-only APIs to upload and manage files.",
+        "id": "REQ-1",
+        "summary": "Seed the user Principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state so that after a fresh canister install, logging in with that Internet Identity is granted admin permissions.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-15",
-        "summary": "Add an admin UI workflow in the Admin > Resources tab to upload a file (e.g., PDF) and attach it to a selected Department/Semester/Subject as a new resource, alongside the existing external-URL flow.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/admin/ResourceManager.tsx",
-          "frontend/src/features/admin/resourceMutations.ts",
-          "frontend/src/components/admin/ResourceManager.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/admin/ResourceManager.tsx",
-          "frontend/src/features/admin/resourceMutations.ts",
-          "frontend/src/components/admin/ResourceManager.tsx"
-        ]
+        "id": "REQ-2",
+        "summary": "Expose a backend method `isCallerAdmin()` that matches the frontend usage (the frontend calls `actor.isCallerAdmin()`), returning a boolean that is consistent with the AccessControl permission checks currently used by admin CRUD methods.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-16",
-        "summary": "Update public resource rendering so that resources backed by uploaded files open/download correctly, while external URL resources keep opening their external link.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/resources/ResourceList.tsx",
-          "frontend/src/lib/resourceType.ts",
-          "frontend/src/features/catalog/catalogSearch.ts",
-          "frontend/src/pages/SearchPage.tsx",
-          "frontend/src/pages/SubjectPage.tsx",
-          "frontend/src/pages/BrowsePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/resources/ResourceList.tsx",
-          "frontend/src/lib/resourceType.ts",
-          "frontend/src/features/catalog/catalogSearch.ts"
-        ]
+        "id": "REQ-3",
+        "summary": "Ensure the seeded admin assignment persists across canister upgrades. If the AccessControl admin state is not currently persisted in stable state, add minimal upgrade-safe persistence, and add `backend/migration.mo` only if required by existing state per the project migration policy.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-17",
-        "summary": "Update the Admin Help section text to include instructions for uploading files directly in PREMJI (in addition to the existing external-hosting instructions), keeping all user-facing text in English.",
+        "id": "REQ-4",
+        "summary": "Fix the admin page gating so it no longer shows the “Access Denied” screen for the intended seeded admin user; once logged in as the seeded admin principal, `/admin` must render the Admin Panel content (tabs and managers) instead of the access-denied card.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/admin/AdminHelpSection.tsx"
+          "frontend/src/features/admin/useAdminStatus.ts",
+          "frontend/src/components/admin/AdminGuard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/admin/AdminHelpSection.tsx"
+          "frontend/src/features/admin/useAdminStatus.ts",
+          "frontend/src/components/admin/AdminGuard.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/blob-storage/Mixin.mo",
-    "backend/blob-storage/Storage.mo",
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/admin/AdminHelpSection.tsx",
-    "frontend/src/components/admin/ResourceManager.tsx",
-    "frontend/src/components/resources/ResourceList.tsx",
+    "frontend/src/components/admin/AdminGuard.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/features/admin/resourceMutations.ts",
-    "frontend/src/features/catalog/catalogSearch.ts",
-    "frontend/src/lib/resourceType.ts",
+    "frontend/src/features/admin/useAdminStatus.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

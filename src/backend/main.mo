@@ -3,16 +3,12 @@ import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Nat "mo:core/Nat";
-import List "mo:core/List";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 
-// Enabling data migration on upgrades
-(with migration = Migration.run)
 actor {
   include MixinStorage();
 
@@ -49,14 +45,13 @@ actor {
     name : Text;
   };
 
-  let accessControlState = AccessControl.initState();
+  var accessControlState : AccessControl.AccessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
   let departments = Map.empty<Text, Department>();
   let userProfiles = Map.empty<Principal, UserProfile>();
   var nextResourceId = 0;
 
-  // The content field of Resources in defaultSemesters is always #url("")
   let defaultSemesters : [Semester] = Array.tabulate(
     8,
     func(i) {
@@ -69,10 +64,13 @@ actor {
     },
   );
 
-  // User Profile Management
+  public query func getAllDepartments() : async [Department] {
+    departments.values().toArray();
+  };
+
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
+      Runtime.trap("Unauthorized: Only users can access profiles");
     };
     userProfiles.get(caller);
   };
@@ -91,12 +89,6 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Public read access
-  public query func getAllDepartments() : async [Department] {
-    departments.values().toArray();
-  };
-
-  // Admin-only: Add operations
   public shared ({ caller }) func addDepartment(id : Text, name : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add departments");
@@ -194,7 +186,6 @@ actor {
     nextResourceId += 1;
   };
 
-  // Admin-only: Edit operations
   public shared ({ caller }) func editDepartment(id : Text, name : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can edit departments");
@@ -315,7 +306,6 @@ actor {
     departments.add(departmentId, updatedDepartment);
   };
 
-  // Admin-only: Remove operations
   public shared ({ caller }) func removeDepartment(id : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can remove departments");
@@ -408,5 +398,10 @@ actor {
     };
     departments.add(departmentId, updatedDepartment);
   };
-};
 
+  // Seed the admin principal on first initialization
+  system func preupgrade() {
+    let seedAdminPrincipal = Principal.fromText("019c5b4d-8259-74a9-955b-9afe01e4fab7");
+    AccessControl.assignRole(accessControlState, seedAdminPrincipal, seedAdminPrincipal, #admin);
+  };
+};

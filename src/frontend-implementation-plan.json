@@ -1,89 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin file upload for study materials and public rendering for file-backed resources",
+  "title": "Fix /admin gating to correctly render Admin Panel for seeded admin",
   "requirements": [
     {
-      "id": "REQ-15",
-      "summary": "Add admin workflow to upload a file and attach it to a Department/Semester/Subject resource alongside existing external URL resources.",
+      "id": "REQ-4",
+      "summary": "Ensure /admin renders the Admin Panel for authenticated admins while still showing Authentication Required (unauthenticated) and Access Denied (non-admin).",
       "acceptanceCriteria": [
-        "Admin can choose between adding a resource via external URL or via file upload.",
-        "File upload UI includes: file picker, title input, department/semester/subject selection, and a submit button that is disabled while uploading.",
-        "After a successful upload + resource creation, the departments query cache is invalidated/refetched and the new resource appears in the admin list without a manual refresh.",
-        "Validation prevents submission when required fields are missing, and shows user-facing errors in English (no crashes).",
-        "No changes are made to immutable hook/component paths listed in SYSTEM_CONTEXT."
+        "When logged in with the seeded admin principal, navigating to `/admin` renders the Admin Panel UI (title and tabs) and does not display the “Access Denied” card shown in the screenshot.",
+        "When logged in with a non-admin principal, `/admin` continues to show “Access Denied”.",
+        "When unauthenticated, `/admin` continues to show the “Authentication Required” login prompt."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/admin/ResourceManager.tsx",
+          "path": "frontend/src/features/admin/useAdminStatus.ts",
           "operation": "modify",
-          "description": "Extend the Add/Edit Resource dialog to support choosing resource source (External URL vs File Upload). Add a file picker and wire submission to create a ResourceContent payload for either kind. When uploading, read the selected file bytes and use the blob-storage component’s ExternalBlob.fromBytes(...) (optionally with withUploadProgress for future readiness) to produce the file-backed content; ensure the submit button is disabled while the mutation is pending. Verify the component's usage instructions before implementing."
+          "description": "Harden and align admin-status fetching with the backend `isCallerAdmin()` behavior: ensure the query refetches on mount/navigation (to avoid stale cached false values after login/role changes) and add a defensive check that the actor method exists before calling. Use the authorization component’s intended admin-check capability via `actor.isCallerAdmin()`; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/features/admin/resourceMutations.ts",
+          "path": "frontend/src/components/admin/AdminGuard.tsx",
           "operation": "modify",
-          "description": "Update resource mutations to call actor.addResource/editResource with the backend ResourceContent shape (url or externalBlob) instead of a plain url string. Keep React Query invalidation of ['departments'] on success so the admin list refreshes after upload/create."
-        },
-        {
-          "path": "frontend/src/components/admin/ResourceManager.tsx",
-          "operation": "modify",
-          "description": "Update admin resource list rendering to derive and display resource type from the new ResourceContent model without runtime errors, and ensure edit flow can handle URL resources and file-backed resources safely (e.g., only allow editing the title and/or switching content according to the new UX)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "summary": "Update public resource list rendering to open external URLs as before and file-backed resources via a public download URL derived from stored file references.",
-      "acceptanceCriteria": [
-        "On Browse/Subject/Search pages, clicking “Open” for an external resource still opens the existing resource.url in a new tab.",
-        "For file-backed resources, clicking “Open” opens the generated public download URL in a new tab and successfully downloads/opens the file.",
-        "Resource type badges and existing list styling continue to render without runtime errors."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/resources/ResourceList.tsx",
-          "operation": "modify",
-          "description": "Update ResourceList to use the ResourceContent model: for url kind, keep linking to the external URL; for externalBlob kind, use the blob-storage ExternalBlob.getDirectURL() to build the public download link for the Open action. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/lib/resourceType.ts",
-          "operation": "modify",
-          "description": "Update resource type derivation to work with file-backed resources (no longer assuming a url string exists on the resource). Prefer using title keywords, and when a URL is available (url kind or externalBlob direct URL), incorporate it without causing crashes."
-        },
-        {
-          "path": "frontend/src/features/catalog/catalogSearch.ts",
-          "operation": "modify",
-          "description": "Update search filtering and type filtering to work with the Resource model that uses ResourceContent (remove assumptions about a url field and reuse the updated type derivation)."
-        },
-        {
-          "path": "frontend/src/pages/SearchPage.tsx",
-          "operation": "modify",
-          "description": "Ensure search results flattening remains compatible with the updated Resource model (content-based) so ResourceList receives correct data and Open works for both external links and file-backed resources."
-        },
-        {
-          "path": "frontend/src/pages/SubjectPage.tsx",
-          "operation": "modify",
-          "description": "Verify Subject page passes the updated Resource objects through to ResourceList unchanged so Open behavior works for both external and file-backed resources."
-        },
-        {
-          "path": "frontend/src/pages/BrowsePage.tsx",
-          "operation": "modify",
-          "description": "Verify Browse page subject cards and resource counts remain correct with the updated Resource model and no assumptions about a url field."
-        }
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "summary": "Update Admin Help text to explain both uploading files directly in PREMJI and linking externally hosted files, in English.",
-      "acceptanceCriteria": [
-        "Admin Help section explains both options: (1) upload a file in PREMJI and (2) link to an externally hosted file.",
-        "Help content does not claim PREMJI cannot host files directly (update existing wording to match the new capability)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminHelpSection.tsx",
-          "operation": "modify",
-          "description": "Rewrite help content to reflect the new capability: include clear, English instructions for (1) uploading a file directly in PREMJI via the Resources tab and (2) adding an external URL. Remove/replace the existing statement that PREMJI does not host files directly."
+          "description": "Adjust gating logic to only show the Access Denied UI when admin status is definitively `false` (not when still undefined/loading), preventing false negatives; keep existing unauthenticated login prompt and error states intact. This uses the authorization component’s role-based gating pattern; verify the component's usage instructions before implementing."
         }
       ]
     }

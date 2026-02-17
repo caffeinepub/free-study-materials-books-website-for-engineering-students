@@ -1,38 +1,58 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T09:39:41.359Z",
-  "summary": "Diff implements a new Resource.content variant supporting either external URLs or uploaded file blobs, adds a migration to preserve existing stable data, updates public resource opening logic to handle file-backed resources, and updates Admin Help text. However, backend admin-only upload/manage APIs and some frontend UX/validation details for the upload workflow are not clearly evidenced in the provided diff summary (backend/main.mo and ResourceManager.tsx are truncated).",
+  "generatedAt": "2026-02-16T09:56:19.732Z",
+  "summary": "Frontend admin gating logic was updated (AdminGuard + admin status hook) to better handle loading/error states and avoid showing Access Denied when admin status is undefined. However, the backend changes required to seed the admin principal, expose `isCallerAdmin()`, and ensure upgrade persistence are not evidenced in the provided diff summary (backend/main.mo is truncated and shows no seeding/persistence/new method).",
   "missing_requirements": [
     {
-      "id": "REQ-14",
-      "requirement": "Backend exposes admin-only APIs to upload/manage stored files (binary content) and returns a stable identifier attachable to a resource; provides a public query method to construct a download URL; traps Unauthorized for non-admin on upload/manage methods.",
-      "reason": "The diff shows the Resource model extended with #externalBlob and inclusion of blob-storage mixin, but does not show any explicit admin-only upload/manage methods, stable identifier return, or a public query method for download URL construction. backend/main.mo is truncated before any such APIs would be visible, so these items are not evidenced.",
+      "id": "REQ-1",
+      "requirement": "Seed the user Principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state so that after a fresh canister install, logging in with that Internet Identity is granted admin permissions.",
+      "reason": "No evidence in the shown backend changes that the specified principal is added to the AccessControl admin set on fresh install (no constant principal, no initialization logic shown).",
       "evidence": [
-        "backend/main.mo (truncated)"
+        "backend/main.mo (truncated; shows `var accessControlState = AccessControl.initState()` but no seeding logic present in excerpt)"
       ]
     },
     {
-      "id": "REQ-15",
-      "requirement": "Admin upload UI: submit button disabled while uploading; validation prevents submission when required fields missing and shows user-facing errors in English (no crashes).",
-      "reason": "ResourceManager.tsx shows state for form fields (including file) and uploadProgress, plus a source selector, but the diff excerpt is truncated before submit handling. No explicit evidence of disabled submit during upload or validation/error messaging is shown.",
+      "id": "REQ-2",
+      "requirement": "Expose a backend method `isCallerAdmin()` that matches the frontend usage, returning a boolean consistent with existing permission checks.",
+      "reason": "Frontend now explicitly expects `actor.isCallerAdmin()` to exist, but the backend diff excerpt does not show any exported `isCallerAdmin` method.",
       "evidence": [
-        "frontend/src/components/admin/ResourceManager.tsx (truncated)"
+        "frontend/src/features/admin/useAdminStatus.ts (throws if `actor.isCallerAdmin` is missing)",
+        "backend/main.mo (truncated; no `isCallerAdmin` method shown)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Ensure the seeded admin assignment persists across canister upgrades with minimal upgrade-safe persistence; add backend/migration.mo only if required.",
+      "reason": "No evidence of stable-state persistence (e.g., stable vars, preupgrade/postupgrade hooks) or any migration file; backend excerpt only shows an in-memory `var accessControlState` initialized via `initState()`.",
+      "evidence": [
+        "backend/main.mo (truncated; shows `var accessControlState : ... = AccessControl.initState()` with no upgrade hooks in excerpt)",
+        "ADDED FILES: none (no backend/migration.mo)"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.55,
+  "hallucinated_features": [
+    {
+      "description": "AdminGuard adds a dedicated error UI (Unable to Check Admin Status) with retry behavior and surfaces backend/actor errors to the user.",
+      "reason": "REQ-4 only asks to fix gating so seeded admin can see the Admin Panel and non-admin/unauthenticated states behave correctly; the explicit error-state UX and retry controls are additional behavior not requested.",
+      "evidence": [
+        "frontend/src/components/admin/AdminGuard.tsx"
+      ]
+    },
+    {
+      "description": "useGetAdminStatus throws a specific error when `actor.isCallerAdmin` is not available and adjusts React Query behavior (retry/stale/refetch settings).",
+      "reason": "REQ-4/REQ-2 do not request these specific client-side error semantics or query configuration; they are extra implementation choices beyond the stated requirements.",
+      "evidence": [
+        "frontend/src/features/admin/useAdminStatus.ts"
+      ]
+    }
+  ],
+  "confidence": 0.63,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/admin/AdminHelpSection.tsx",
-    "frontend/src/components/admin/ResourceManager.tsx",
-    "frontend/src/components/resources/ResourceList.tsx",
-    "frontend/src/features/admin/resourceMutations.ts",
-    "frontend/src/features/catalog/catalogSearch.ts",
-    "frontend/src/lib/resourceType.ts",
+    "frontend/src/components/admin/AdminGuard.tsx",
+    "frontend/src/features/admin/useAdminStatus.ts",
     "project_state.json"
   ]
 }

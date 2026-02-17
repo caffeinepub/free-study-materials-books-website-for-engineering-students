@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Allow admins to upload study material files directly into the backend and attach them to resources, while keeping existing external-link resources working as-is.
+**Goal:** Fix admin access so the intended seeded admin Internet Identity principal can access `/admin` after fresh install and across upgrades.
 
 **Planned changes:**
-- Extend the backend resource model to support file-backed materials in addition to external URLs, including admin-only APIs to upload/manage files and a public method to retrieve a download URL (or equivalent info) for students.
-- Ensure all admin upload/manage backend methods reject non-admin callers with a clear Unauthorized error, and preserve existing department/semester/subject resource data.
-- Add an admin workflow in Admin > Resources to create a resource via either external URL or file upload (file picker + required metadata), with validation, disabled submit during upload, and automatic refetch so the new resource appears immediately.
-- Update public resource rendering so external URL resources still open the external link, while file-backed resources open/download via the generated public download URL.
-- Update Admin Help text to document both options (upload in PREMJI and external hosting), in English.
+- Seed principal `019c5b4d-8259-74a9-955b-9afe01e4fab7` as an admin in the backend AccessControl state on fresh install.
+- Add a backend Candid method `isCallerAdmin()` that returns a boolean consistent with existing admin permission checks.
+- Ensure admin assignment persists across canister upgrades with minimal upgrade-safe persistence (adding `backend/migration.mo` only if required).
+- Update frontend admin gating so `/admin` renders the Admin Panel for the seeded admin principal, while keeping current behavior for non-admin and unauthenticated users.
 
-**User-visible outcome:** Admins can upload files (e.g., PDFs) and attach them as resources to specific Department/Semester/Subject entries, and students can open/download those uploaded materials from browse/search pages just like external links.
+**User-visible outcome:** When logged in as `019c5b4d-8259-74a9-955b-9afe01e4fab7`, `/admin` shows the Admin Panel (not “Access Denied”), and admin-gated actions no longer fail as unauthorized; non-admin users still see “Access Denied” and unauthenticated users still see the login prompt.

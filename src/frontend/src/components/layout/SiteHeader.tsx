@@ -3,27 +3,17 @@ import { BookOpen, Search, Menu, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import LoginButton from '../auth/LoginButton';
-import { useInternetIdentity } from '../../hooks/useInternetIdentity';
-import { useGetAdminStatus } from '../../features/admin/useAdminStatus';
 import { useState } from 'react';
 
 export default function SiteHeader() {
   const navigate = useNavigate();
-  const { identity } = useInternetIdentity();
-  const { data: isAdmin, isLoading: adminLoading } = useGetAdminStatus();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const isAuthenticated = !!identity;
-  const showAdminLink = isAuthenticated && !adminLoading && isAdmin;
 
   const navItems = [
     { label: 'Browse', path: '/browse', icon: BookOpen },
     { label: 'Search', path: '/search', icon: Search },
+    { label: 'Admin', path: '/admin', icon: Settings },
   ];
-
-  if (showAdminLink) {
-    navItems.push({ label: 'Admin', path: '/admin', icon: Settings });
-  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
