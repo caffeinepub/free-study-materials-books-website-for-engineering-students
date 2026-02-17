@@ -1,4 +1,27 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-fix-the-department-selection-behavior-in-the-catalog-search-ui-so-that-when-a-user-selects-a-specific-department-instead-of-all-departments-the-selection-is-reflected-in-the-department-dropdown-and-the-results-are-filtered-accordingly-i-e-it-does-not-continue-showing-all-departments-after-selection",
+      "featureTitle": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+      "files": [
+        "frontend/src/components/resources/ResourceFilters.tsx",
+        "frontend/src/features/catalog/catalogSearch.ts",
+        "frontend/src/pages/SearchPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

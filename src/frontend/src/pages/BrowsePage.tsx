@@ -2,19 +2,19 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useGetAllDepartments } from '../features/catalog/useCatalog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpen, ChevronRight, FolderOpen } from 'lucide-react';
+import { ChevronRight, FolderOpen, BookOpen } from 'lucide-react';
 import type { Department, Semester, Subject } from '../backend';
 import { sortSemesters } from '../utils/semesterSort';
 
 export default function BrowsePage() {
   const navigate = useNavigate();
-  const { data: departments, isLoading } = useGetAllDepartments();
+  const { data: departments, isLoading, isFetched } = useGetAllDepartments();
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
 
-  if (isLoading) {
+  // Show loading skeleton while actor is initializing or query is loading
+  if (isLoading || !isFetched) {
     return (
       <div className="container py-12">
         <div className="mb-8">
@@ -30,6 +30,7 @@ export default function BrowsePage() {
     );
   }
 
+  // Only show empty state after fetch is complete with zero departments
   if (!departments || departments.length === 0) {
     return (
       <div className="container py-12">

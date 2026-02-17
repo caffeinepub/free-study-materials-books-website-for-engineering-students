@@ -3,14 +3,21 @@ import { useActor } from '../../hooks/useActor';
 import type { Department } from '../../backend';
 
 export function useGetAllDepartments() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery<Department[]>({
+  const query = useQuery<Department[]>({
     queryKey: ['departments'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllDepartments();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
   });
+
+  // Return custom state that properly reflects actor dependency
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+    isFetched: !!actor && !actorFetching && query.isFetched,
+  };
 }

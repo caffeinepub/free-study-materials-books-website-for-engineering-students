@@ -1,6 +1,34 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "PREMJI StudyHub — Frontend-only plan (no changes required for backend-only request)",
-  "requirements": []
+  "title": "Fix Department filter dropdown state and apply filtering on Search page",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Ensure Department dropdown reflects the selected department and filters search results accordingly while keeping dependent filter reset behavior consistent.",
+      "acceptanceCriteria": [
+        "On the Search page, selecting a Department updates the visible selected value in the Department dropdown (it no longer continues to display 'All Departments').",
+        "After selecting a Department, the displayed resources are filtered to only those belonging to that department.",
+        "Changing Department resets Semester and Subject selections (keeping current intended behavior), and the dropdowns remain consistent with the current selection state.",
+        "Selecting 'All Departments' clears the department filter and shows resources across all departments again."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/resources/ResourceFilters.tsx",
+          "operation": "modify",
+          "description": "Fix controlled Select state for Department so the selected value is reliably reflected in the trigger (avoid value/label mismatches). Ensure the 'All Departments' sentinel mapping only applies to the UI value while the callback receives a stable department id (or empty string for All). Keep Semester/Subject Select disabled/enabled logic consistent with the selected department/semester state. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SearchPage.tsx",
+          "operation": "modify",
+          "description": "Harden filter state handling for Department/Semester/Subject so selecting a Department reliably updates state, resets Semester and Subject (as intended), and passes the correct departmentId into catalog filtering. Ensure selecting 'All Departments' clears the departmentId (empty string) and results show all departments again."
+        },
+        {
+          "path": "frontend/src/features/catalog/catalogSearch.ts",
+          "operation": "modify",
+          "description": "Add defensive normalization for departmentId/semesterId/subjectId comparisons (e.g., consistent string handling) so selected ids from the filter UI correctly match flattened resource context and filtering does not fall back to showing all departments after selection."
+        }
+      ]
+    }
+  ]
 }

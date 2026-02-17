@@ -1,25 +1,29 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Add backend support for admin access checks by implementing isCallerAdmin so frontend AdminGuard can validate admins correctly.",
+  "summary": "New project",
   "architectural_notes": [
-    "Frontend AdminGuard depends on backend exposing a query isCallerAdmin() endpoint for admin checks."
+    "Frontend admin guard expects backend canister to expose `isCallerAdmin()`; admin access depends on this API existing and returning correct value."
   ],
   "known_issues": [
-    "Admin access currently fails because backend lacks isCallerAdmin(), causing frontend AdminGuard checks to always fail."
+    "Admin access shows 'Access Denied' because backend is missing `isCallerAdmin()` that frontend calls (admin check fails).",
+    "Department view/filter always shows all departments even after selecting a department (selection not applied)."
   ],
   "isFixRequest": true,
-  "existing_features": [],
+  "existing_features": [
+    {
+      "id": "feature-fix-the-department-selection-behavior-in-the-catalog-search-ui-so-that-when-a-user-selects-a-specific-department-instead-of-all-departments-the-selection-is-reflected-in-the-department-dropdown-and-the-results-are-filtered-accordingly-i-e-it-does-not-continue-showing-all-departments-after-selection",
+      "title": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    }
+  ],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Implement backend query function isCallerAdmin() to support admin access checks used by frontend AdminGuard",
-      "reqIds": [],
-      "status": "in_progress"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
+      "summary": "Add a backend canister query method `isCallerAdmin()` so the frontend AdminGuard can verify whether the current caller is an admin. Implement it exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
       "reqIds": [
         "REQ-1"
       ],

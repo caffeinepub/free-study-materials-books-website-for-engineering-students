@@ -54,11 +54,11 @@ export default function SearchPage() {
   // Filter resources
   const filteredResources = useMemo(() => {
     return filterResources(allResources, {
-      keyword,
-      departmentId: selectedDepartment,
-      semesterId: selectedSemester,
-      subjectId: selectedSubject,
-      resourceType: selectedType,
+      keyword: keyword.trim(),
+      departmentId: selectedDepartment.trim(),
+      semesterId: selectedSemester.trim(),
+      subjectId: selectedSubject.trim(),
+      resourceType: selectedType.trim(),
     });
   }, [allResources, keyword, selectedDepartment, selectedSemester, selectedSubject, selectedType]);
 

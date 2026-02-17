@@ -1,10 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add a backend `isCallerAdmin()` canister query so the frontend `AdminGuard` / `useGetAdminStatus()` can reliably check whether the current caller is an admin.
+**Goal:** Fix admin access verification and ensure Department filtering/selection state works correctly in the Search/Catalog UI.
 
 **Planned changes:**
-- Implement `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns `true` when `caller` is an admin and `false` otherwise using the existing access-control state.
-- Ensure the method is exposed in the generated Candid/actor interface and is callable as `actor.isCallerAdmin()` from the frontend without trapping for non-admin users.
+- Backend: Add a candid-exposed query method `isCallerAdmin()` in `backend/main.mo` implemented exactly as specified so the frontend can reliably verify admin status.
+- Frontend: Update AdminGuard (or the admin route access check) to call `isCallerAdmin()` and stop incorrectly showing “Access Denied” for authenticated admins.
+- Frontend: Fix Department dropdown state so selecting a specific department updates the displayed selected value (not stuck on “All Departments”) and filters the shown resources to that department.
+- Frontend: Keep current behavior where changing Department resets Semester and Subject, while keeping all dropdowns consistent with the active selection; selecting “All Departments” clears the filter.
 
-**User-visible outcome:** Admin users can pass the frontend permission check (and non-admin users are denied normally) without the error that `isCallerAdmin` is missing from the actor.
+**User-visible outcome:** Admin users can access `/admin` without an incorrect “Access Denied” screen, and users can select a Department on the Search page and see both the dropdown and results reflect that selection (with “All Departments” clearing the filter).

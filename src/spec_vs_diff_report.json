@@ -1,29 +1,61 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T09:55:46.145Z",
-  "summary": "The diff does not implement the requested backend method. Only a project metadata file was modified; `backend/main.mo` was not changed, so `isCallerAdmin()` is still missing.",
+  "generatedAt": "2026-02-17T11:03:53.540Z",
+  "summary": "REQ-2 (department filter selection + filtering behavior) appears implemented via controlled Select values and normalized filtering logic. REQ-1 (backend `isCallerAdmin()` query in `backend/main.mo` implemented exactly as specified) is not evidenced in the provided diff summary. Several unrelated frontend changes are described (e.g., Admin link visibility, AdminGuard behavior, HomePage auth removal).",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
-      "reason": "No changes were made to `backend/main.mo` (or any backend Motoko code) in the diff; only `project_state.json` was updated, so the canister does not expose the required query method.",
+      "requirement": "Add backend canister query method `isCallerAdmin()` implemented exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
+      "reason": "No backend file changes are shown, and there is no evidence that `backend/main.mo` was modified or that `isCallerAdmin()` was added/exported.",
       "evidence": [
-        "project_state.json (only modified file in diff; no backend/main.mo changes present)"
+        "File diff summary lists modified files only under frontend; no `backend/main.mo` present."
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/updated project tracking entries (AR-1/AR-2) describing implementation work without implementing the backend functionality.",
-      "reason": "The BuildRequest only asks to add `isCallerAdmin()` in `backend/main.mo`; updating `project_state.json` is not part of the requested functional change.",
+      "description": "Admin link is now always visible to all users in the site header.",
+      "reason": "BuildRequest focuses on fixing admin access check (via backend method) and department filtering; it does not request changing navigation visibility.",
       "evidence": [
-        "project_state.json"
+        "frontend-file-summaries.txt: \"SiteHeader... Admin link is now always visible to all users.\""
+      ]
+    },
+    {
+      "description": "AdminGuard behavior changes beyond wiring to `isCallerAdmin()` (e.g., removed error state handling; access denied only when isAdmin explicitly false).",
+      "reason": "REQ-1 requires adding a backend method so AdminGuard can verify admin status; it does not request behavioral/UI logic refactors in AdminGuard beyond fixing the missing backend method issue.",
+      "evidence": [
+        "frontend-file-summaries.txt: \"AdminGuard... removed error state handling... access denied screen only when isAdmin is explicitly false\""
+      ]
+    },
+    {
+      "description": "Home page authentication-related logic removed (e.g., removed MyPrincipalBox and auth imports/logic).",
+      "reason": "Not requested by REQ-1 or REQ-2 and outside the stated scope/non-goals.",
+      "evidence": [
+        "frontend-file-summaries.txt: \"HomePage... removed MyPrincipalBox component and all authentication-related imports/logic.\""
+      ]
+    },
+    {
+      "description": "Admin page now includes an AdminHelpSection in Resources tab.",
+      "reason": "Not requested; scope is admin access check and department filtering behavior.",
+      "evidence": [
+        "frontend-file-summaries.txt: \"AdminPage... now includes AdminHelpSection in the Resources tab.\""
+      ]
+    },
+    {
+      "description": "DepartmentManager mutation fix to pass string ID to removeDepartment.",
+      "reason": "Not requested by the BuildRequest.",
+      "evidence": [
+        "frontend-file-summaries.txt: \"DepartmentManager... fixed to pass string ID to removeDepartment mutation.\""
       ]
     }
   ],
-  "confidence": 0.9,
+  "confidence": 0.74,
   "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/components/resources/ResourceFilters.tsx",
+    "frontend/src/features/catalog/catalogSearch.ts",
+    "frontend/src/pages/SearchPage.tsx",
     "project_state.json"
   ]
 }

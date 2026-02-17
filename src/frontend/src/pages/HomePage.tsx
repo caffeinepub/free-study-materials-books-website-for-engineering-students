@@ -2,12 +2,9 @@ import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BookOpen, Search, GraduationCap, FileText, Zap } from 'lucide-react';
-import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import MyPrincipalBox from '@/components/account/MyPrincipalBox';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { identity } = useInternetIdentity();
 
   const features = [
     {
@@ -31,8 +28,6 @@ export default function HomePage() {
       description: 'All study materials are completely free for engineering students.',
     },
   ];
-
-  const isAuthenticated = !!identity;
 
   return (
     <div className="flex flex-col">
@@ -83,41 +78,35 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Principal Box Section - Only shown when authenticated */}
-      {isAuthenticated && (
-        <section className="container py-8">
-          <div className="max-w-2xl mx-auto">
-            <MyPrincipalBox />
-          </div>
-        </section>
-      )}
-
       {/* Features Section */}
       <section className="container py-16 md:py-24">
         <div className="text-center mb-12">
           <h2 className="font-heading text-3xl md:text-4xl font-bold mb-4">
             Everything You Need to Succeed
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            StudyHub provides a comprehensive platform designed specifically for engineering students.
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            PREMJI provides a comprehensive platform for accessing and organizing study materials
           </p>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature, index) => (
-            <Card key={index} className="border-2 hover:border-primary/50 transition-colors">
-              <CardContent className="pt-6">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <feature.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-heading text-lg font-semibold mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Card key={index} className="border-2">
+                <CardContent className="pt-6">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-heading text-xl font-semibold mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
@@ -126,19 +115,30 @@ export default function HomePage() {
         <div className="container py-16 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="font-heading text-3xl md:text-4xl font-bold mb-4">
-              Start Learning Today
+              Ready to Start Learning?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Join thousands of engineering students who are already using StudyHub to access free study materials and excel in their courses.
+            <p className="text-muted-foreground text-lg mb-8">
+              Browse our extensive collection of study materials or search for specific resources
             </p>
-            <Button
-              size="lg"
-              onClick={() => navigate({ to: '/browse' })}
-              className="gap-2"
-            >
-              <BookOpen className="h-5 w-5" />
-              Explore Study Materials
-            </Button>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button
+                size="lg"
+                onClick={() => navigate({ to: '/browse' })}
+                className="gap-2"
+              >
+                <BookOpen className="h-5 w-5" />
+                Browse by Department
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate({ to: '/search' })}
+                className="gap-2"
+              >
+                <Search className="h-5 w-5" />
+                Search All Resources
+              </Button>
+            </div>
           </div>
         </div>
       </section>

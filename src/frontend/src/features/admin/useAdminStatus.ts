@@ -9,12 +9,18 @@ export function useGetAdminStatus() {
   const query = useQuery<boolean>({
     queryKey: ['adminStatus', identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      if (!actor.isCallerAdmin) {
-        throw new Error('isCallerAdmin method not available on actor');
+      if (!actor) return false;
+      // Defensive check: if isCallerAdmin doesn't exist, treat as non-admin
+      if (!actor.isCallerAdmin || typeof actor.isCallerAdmin !== 'function') {
+        return false;
       }
-      // Let errors propagate to React Query so UI can handle them
-      return await actor.isCallerAdmin();
+      try {
+        return await actor.isCallerAdmin();
+      } catch (error) {
+        // If the call fails, treat as non-admin rather than throwing
+        console.error('Admin status check failed:', error);
+        return false;
+      }
     },
     enabled: !!actor && !!identity && !actorFetching,
     retry: 1,

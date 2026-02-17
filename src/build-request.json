@@ -1,36 +1,57 @@
 {
   "kind": "build_request",
-  "title": "Add backend isCallerAdmin() method for AdminGuard",
+  "title": "Fix admin access check and make Department filter selection apply correctly",
   "projectName": "PREMJI StudyHub",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
+      "text": "Add a backend canister query method `isCallerAdmin()` so the frontend AdminGuard can verify whether the current caller is an admin. Implement it exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-1"
         ],
         "quotes": [
-          "add isCallerAdmin into backend now (FINAL)",
-          "Your backend STILL has no isCallerAdmin function. The frontend checks it inside AdminGuard, so admin will always fail."
+          "Add it now and I will apply the fix and redeploy cleanly."
         ]
       },
       "acceptanceCriteria": [
-        "The canister exposes `isCallerAdmin : () -> (bool) query` (or equivalent) in the generated Candid/actor interface.",
-        "Calling `isCallerAdmin()` from an authenticated identity returns `true` when the caller is an admin and `false` otherwise.",
-        "The method does not trap for non-admin callers; it must return `false` rather than throwing.",
-        "Frontend admin status query (`useGetAdminStatus`) no longer throws the error `isCallerAdmin method not available on actor` and `AdminGuard` can proceed past the permission-check step for admin users."
+        "The backend candid exports a callable `isCallerAdmin()` query.",
+        "Calling `isCallerAdmin()` as the seeded admin principal returns `true`.",
+        "Calling `isCallerAdmin()` as a non-admin returns `false` (no trap).",
+        "Visiting the `/admin` route while authenticated as an admin no longer shows the 'Access Denied' screen due to failed/missing `isCallerAdmin()` backend method."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "still it shows access denied and in department only showing all department if i click it means also on department showing always shows all department"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On the Search page, selecting a Department updates the visible selected value in the Department dropdown (it no longer continues to display 'All Departments').",
+        "After selecting a Department, the displayed resources are filtered to only those belonging to that department.",
+        "Changing Department resets Semester and Subject selections (keeping current intended behavior), and the dropdowns remain consistent with the current selection state.",
+        "Selecting 'All Departments' clears the department filter and shows resources across all departments again."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo`; do not introduce additional backend services."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not edit files under `frontend/src/components/ui` or other frontend immutable paths defined by the system.",
+    "Use English for all user-facing UI text."
   ],
   "nonGoals": [
-    "Changing frontend admin-guard UI/UX logic.",
-    "Reworking how admin principals are seeded or managed beyond exposing the missing `isCallerAdmin()` method."
+    "Adding new authentication providers beyond Internet Identity.",
+    "Introducing external databases or non-IC backend services.",
+    "Redesigning the overall information architecture beyond fixing the specified admin check and department filtering behavior."
   ],
   "imageRequirements": {
     "required": [],

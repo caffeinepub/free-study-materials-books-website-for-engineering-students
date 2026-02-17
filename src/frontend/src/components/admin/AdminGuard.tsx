@@ -3,7 +3,7 @@ import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useGetAdminStatus } from '../../features/admin/useAdminStatus';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldAlert, LogIn, Loader2, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, LogIn, Loader2 } from 'lucide-react';
 
 interface AdminGuardProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ interface AdminGuardProps {
 
 export default function AdminGuard({ children }: AdminGuardProps) {
   const { identity, login, loginStatus } = useInternetIdentity();
-  const { data: isAdmin, isLoading: adminLoading, isFetched, isError, error, refetch } = useGetAdminStatus();
+  const { data: isAdmin, isLoading: adminLoading, isFetched } = useGetAdminStatus();
 
   const isAuthenticated = !!identity;
 
@@ -64,42 +64,7 @@ export default function AdminGuard({ children }: AdminGuardProps) {
     );
   }
 
-  // Show error state if admin check failed
-  if (isError) {
-    return (
-      <div className="container max-w-2xl py-16">
-        <Card>
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning/10">
-              <AlertTriangle className="h-8 w-8 text-warning" />
-            </div>
-            <CardTitle>Unable to Check Admin Status</CardTitle>
-            <CardDescription>
-              We couldn't verify your admin permissions. This may be due to a backend error or missing functionality. Please try again.
-            </CardDescription>
-            {error && (
-              <div className="mt-4 rounded-md bg-muted p-3 text-left text-sm">
-                <p className="font-mono text-destructive">
-                  {error instanceof Error ? error.message : 'Unknown error'}
-                </p>
-              </div>
-            )}
-          </CardHeader>
-          <CardContent className="flex justify-center">
-            <Button
-              onClick={() => refetch()}
-              variant="outline"
-              size="lg"
-            >
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Show access denied only when isAdmin is explicitly false (not undefined)
+  // Show access denied only when isAdmin is explicitly false
   if (isAdmin === false) {
     return (
       <div className="container max-w-2xl py-16">

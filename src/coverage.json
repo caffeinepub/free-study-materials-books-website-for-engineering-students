@@ -1,31 +1,47 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T09:55:46.148Z",
+  "generatedAt": "2026-02-17T11:03:53.543Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 0,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Implement a backend canister method `isCallerAdmin()` in `backend/main.mo` as a `public query ({ caller })` function that returns whether `caller` is an admin using the existing access control state, so the frontend `useGetAdminStatus()` / `AdminGuard` can call `actor.isCallerAdmin()` successfully.",
+        "summary": "Add a backend canister query method `isCallerAdmin()` so the frontend AdminGuard can verify whether the current caller is an admin. Implement it exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/resources/ResourceFilters.tsx",
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/features/catalog/catalogSearch.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/resources/ResourceFilters.tsx",
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/features/catalog/catalogSearch.ts"
+        ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
     "feature_evidence.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/components/resources/ResourceFilters.tsx",
+    "frontend/src/features/catalog/catalogSearch.ts",
+    "frontend/src/pages/SearchPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

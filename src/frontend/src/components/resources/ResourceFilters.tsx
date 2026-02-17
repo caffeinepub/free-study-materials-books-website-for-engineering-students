@@ -21,7 +21,6 @@ interface ResourceFiltersProps {
 }
 
 const RESOURCE_TYPES = ['Notes', 'Book', 'Previous Papers', 'Slides', 'Lab Manual', 'Other'];
-const ALL_SENTINEL = '__all__';
 
 export default function ResourceFilters({
   departments,
@@ -39,28 +38,6 @@ export default function ResourceFilters({
   const department = departments.find((d) => d.id === selectedDepartment);
   const sortedSemesters = department ? sortSemesters(department.semesters) : [];
   const semester = sortedSemesters.find((s) => s.id === selectedSemester);
-
-  // Convert empty string to sentinel for display, and sentinel back to empty string for state
-  const departmentValue = selectedDepartment || ALL_SENTINEL;
-  const semesterValue = selectedSemester || ALL_SENTINEL;
-  const subjectValue = selectedSubject || ALL_SENTINEL;
-  const typeValue = selectedType || ALL_SENTINEL;
-
-  const handleDepartmentChange = (value: string) => {
-    onDepartmentChange(value === ALL_SENTINEL ? '' : value);
-  };
-
-  const handleSemesterChange = (value: string) => {
-    onSemesterChange(value === ALL_SENTINEL ? '' : value);
-  };
-
-  const handleSubjectChange = (value: string) => {
-    onSubjectChange(value === ALL_SENTINEL ? '' : value);
-  };
-
-  const handleTypeChange = (value: string) => {
-    onTypeChange(value === ALL_SENTINEL ? '' : value);
-  };
 
   return (
     <Card>
@@ -82,12 +59,15 @@ export default function ResourceFilters({
 
           <div className="space-y-2">
             <Label htmlFor="department">Department</Label>
-            <Select value={departmentValue} onValueChange={handleDepartmentChange}>
+            <Select 
+              value={selectedDepartment || 'all'} 
+              onValueChange={(value) => onDepartmentChange(value === 'all' ? '' : value)}
+            >
               <SelectTrigger id="department">
                 <SelectValue placeholder="All Departments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SENTINEL}>All Departments</SelectItem>
+                <SelectItem value="all">All Departments</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id}>
                     {dept.name}
@@ -100,15 +80,15 @@ export default function ResourceFilters({
           <div className="space-y-2">
             <Label htmlFor="semester">Semester</Label>
             <Select
-              value={semesterValue}
-              onValueChange={handleSemesterChange}
+              value={selectedSemester || 'all'}
+              onValueChange={(value) => onSemesterChange(value === 'all' ? '' : value)}
               disabled={!selectedDepartment}
             >
               <SelectTrigger id="semester">
                 <SelectValue placeholder="All Semesters" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SENTINEL}>All Semesters</SelectItem>
+                <SelectItem value="all">All Semesters</SelectItem>
                 {sortedSemesters.map((sem) => (
                   <SelectItem key={sem.id} value={sem.id}>
                     {sem.name}
@@ -121,15 +101,15 @@ export default function ResourceFilters({
           <div className="space-y-2">
             <Label htmlFor="subject">Subject</Label>
             <Select
-              value={subjectValue}
-              onValueChange={handleSubjectChange}
+              value={selectedSubject || 'all'}
+              onValueChange={(value) => onSubjectChange(value === 'all' ? '' : value)}
               disabled={!selectedSemester}
             >
               <SelectTrigger id="subject">
                 <SelectValue placeholder="All Subjects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SENTINEL}>All Subjects</SelectItem>
+                <SelectItem value="all">All Subjects</SelectItem>
                 {semester?.subjects.map((subj) => (
                   <SelectItem key={subj.id} value={subj.id}>
                     {subj.name}
@@ -141,12 +121,15 @@ export default function ResourceFilters({
 
           <div className="space-y-2 md:col-span-2 lg:col-span-1">
             <Label htmlFor="type">Resource Type</Label>
-            <Select value={typeValue} onValueChange={handleTypeChange}>
+            <Select 
+              value={selectedType || 'all'} 
+              onValueChange={(value) => onTypeChange(value === 'all' ? '' : value)}
+            >
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SENTINEL}>All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 {RESOURCE_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
