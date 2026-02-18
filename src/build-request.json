@@ -1,57 +1,74 @@
 {
   "kind": "build_request",
-  "title": "Fix admin access check and make Department filter selection apply correctly",
+  "title": "Fix SearchPage deployment build error and stabilize department dropdown flow",
   "projectName": "PREMJI StudyHub",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a backend canister query method `isCallerAdmin()` so the frontend AdminGuard can verify whether the current caller is an admin. Implement it exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
-      "target": "backend",
+      "text": "Identify and fix the frontend build error that is causing deployment to fail, focusing on the Search page and its Department filter/dropdown flow and dependent catalog hooks/components.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "Add it now and I will apply the fix and redeploy cleanly."
+          "import { useState, useMemo } from 'react';\nimport { useGetAllDepartments } from '../features/catalog/useCatalog';\n...\nimport ResourceFilters from '../components/resources/ResourceFilters';\n...\nexport default function SearchPage() { ... }"
         ]
       },
       "acceptanceCriteria": [
-        "The backend candid exports a callable `isCallerAdmin()` query.",
-        "Calling `isCallerAdmin()` as the seeded admin principal returns `true`.",
-        "Calling `isCallerAdmin()` as a non-admin returns `false` (no trap).",
-        "Visiting the `/admin` route while authenticated as an admin no longer shows the 'Access Denied' screen due to failed/missing `isCallerAdmin()` backend method."
+        "The frontend production build completes successfully without errors.",
+        "The Search page (frontend/src/pages/SearchPage.tsx) renders without runtime errors in both anonymous and authenticated sessions.",
+        "No changes are made to immutable frontend paths (e.g., frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+      "text": "Ensure the Department select dropdown in the Search page filter panel reliably lists all departments returned by the backend (not only the default \"All Departments\" option) once catalog data is available.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "still it shows access denied and in department only showing all department if i click it means also on department showing always shows all department"
+          "Use English for any user-facing text in the build request."
         ]
       },
       "acceptanceCriteria": [
-        "On the Search page, selecting a Department updates the visible selected value in the Department dropdown (it no longer continues to display 'All Departments').",
-        "After selecting a Department, the displayed resources are filtered to only those belonging to that department.",
-        "Changing Department resets Semester and Subject selections (keeping current intended behavior), and the dropdowns remain consistent with the current selection state.",
-        "Selecting 'All Departments' clears the department filter and shows resources across all departments again."
+        "After departments load successfully via useGetAllDepartments, the Department dropdown shows \"All Departments\" plus one option per department returned by actor.getAllDepartments().",
+        "Selecting a specific department updates the filter state and enables the Semester dropdown; switching back to \"All Departments\" clears the department filter and disables the Semester dropdown until a department is selected again.",
+        "The dropdown options remain correct after refetching departments (e.g., after a retry or cache invalidation)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update Search page loading/error handling so the UI blocks filter rendering (or shows a loading/skeleton state) until the actor is ready and the departments query has either fetched successfully or failed; do not treat an empty departments array as a valid loaded state.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "const { data: departments, isLoading, isFetched, isError, error, refetch } = useGetAllDepartments();"
+        ]
+      },
+      "acceptanceCriteria": [
+        "While the actor is not available and/or departments are still fetching, the Search page shows the skeleton/loading UI and does not render ResourceFilters with an effectively-empty departments list.",
+        "If the departments query fails, the Search page shows the existing error card UI with a working Retry button that triggers refetch().",
+        "If the departments query succeeds with an empty array, the Search page still renders ResourceFilters (with only the \"All Departments\" option) and does not display the loading skeleton indefinitely."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
-    "Do not edit files under `frontend/src/components/ui` or other frontend immutable paths defined by the system.",
-    "Use English for all user-facing UI text."
+    "Keep the backend as a single Motoko actor (no new backend services).",
+    "Do not edit any files under frontend/src/components/ui (compose them only).",
+    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Adding new authentication providers beyond Internet Identity.",
-    "Introducing external databases or non-IC backend services.",
-    "Redesigning the overall information architecture beyond fixing the specified admin check and department filtering behavior."
+    "Adding new backend features or changing the backend schema/APIs for departments/resources.",
+    "Introducing third-party auth providers (Internet Identity only).",
+    "Implementing real-time updates (no WebSockets)."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix admin access verification and ensure Department filtering/selection state works correctly in the Search/Catalog UI.
+**Goal:** Fix the Search page build/deployment error and make the Department dropdown and loading/error flow reliable once catalog data is fetched.
 
 **Planned changes:**
-- Backend: Add a candid-exposed query method `isCallerAdmin()` in `backend/main.mo` implemented exactly as specified so the frontend can reliably verify admin status.
-- Frontend: Update AdminGuard (or the admin route access check) to call `isCallerAdmin()` and stop incorrectly showing “Access Denied” for authenticated admins.
-- Frontend: Fix Department dropdown state so selecting a specific department updates the displayed selected value (not stuck on “All Departments”) and filters the shown resources to that department.
-- Frontend: Keep current behavior where changing Department resets Semester and Subject, while keeping all dropdowns consistent with the active selection; selecting “All Departments” clears the filter.
+- Identify and resolve the frontend production build error originating from `frontend/src/pages/SearchPage.tsx` and its dependent catalog hooks/components used by the Department filter flow.
+- Adjust Search page state/data flow so the Department dropdown is populated from `useGetAllDepartments()` results (showing “All Departments” plus one option per returned department), and stays correct across refetches.
+- Ensure selecting a Department enables the Semester dropdown, and switching back to “All Departments” clears the Department filter and disables Semester until a Department is selected again.
+- Update Search page loading/error handling to block filter rendering (or show loading/skeleton) until the actor is ready and the departments query has either succeeded or failed; keep the existing error card with a working Retry that calls `refetch()`, and treat an empty array only as “loaded” after a successful fetch.
 
-**User-visible outcome:** Admin users can access `/admin` without an incorrect “Access Denied” screen, and users can select a Department on the Search page and see both the dropdown and results reflect that selection (with “All Departments” clearing the filter).
+**User-visible outcome:** The Search page builds and loads without errors, shows a correctly populated Department dropdown once data is available, and displays consistent loading/error states with a functional Retry.

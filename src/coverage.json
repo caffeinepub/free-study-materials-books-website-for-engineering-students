@@ -1,35 +1,54 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T11:03:53.543Z",
+  "generatedAt": "2026-02-18T05:39:58.556Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a backend canister query method `isCallerAdmin()` so the frontend AdminGuard can verify whether the current caller is an admin. Implement it exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Identify and fix the frontend build error that is causing deployment to fail, focusing on the Search page and its Department filter/dropdown flow and dependent catalog hooks/components.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/components/resources/ResourceFilters.tsx",
+          "frontend/src/features/catalog/useCatalog.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/components/resources/ResourceFilters.tsx",
+          "frontend/src/features/catalog/useCatalog.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+        "summary": "Ensure the Department select dropdown in the Search page filter panel reliably lists all departments returned by the backend (not only the default \"All Departments\" option) once catalog data is available.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/resources/ResourceFilters.tsx",
-          "frontend/src/pages/SearchPage.tsx",
-          "frontend/src/features/catalog/catalogSearch.ts"
+          "frontend/src/pages/SearchPage.tsx"
         ],
         "matchedFiles": [
           "frontend/src/components/resources/ResourceFilters.tsx",
+          "frontend/src/pages/SearchPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Update Search page loading/error handling so the UI blocks filter rendering (or shows a loading/skeleton state) until the actor is ready and the departments query has either fetched successfully or failed; do not treat an empty departments array as a valid loaded state.",
+        "status": "implemented",
+        "plannedFiles": [
           "frontend/src/pages/SearchPage.tsx",
-          "frontend/src/features/catalog/catalogSearch.ts"
+          "frontend/src/features/catalog/useCatalog.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/features/catalog/useCatalog.ts"
         ]
       }
     ]
@@ -40,7 +59,7 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/components/resources/ResourceFilters.tsx",
-    "frontend/src/features/catalog/catalogSearch.ts",
+    "frontend/src/features/catalog/useCatalog.ts",
     "frontend/src/pages/SearchPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",

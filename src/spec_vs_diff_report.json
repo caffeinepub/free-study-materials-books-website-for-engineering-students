@@ -1,60 +1,39 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T11:03:53.540Z",
-  "summary": "REQ-2 (department filter selection + filtering behavior) appears implemented via controlled Select values and normalized filtering logic. REQ-1 (backend `isCallerAdmin()` query in `backend/main.mo` implemented exactly as specified) is not evidenced in the provided diff summary. Several unrelated frontend changes are described (e.g., Admin link visibility, AdminGuard behavior, HomePage auth removal).",
+  "generatedAt": "2026-02-18T05:39:58.554Z",
+  "summary": "The diff implements substantial changes to the Search page flow: adds actor-aware loading state in the departments query hook, adds loading/error UI in SearchPage with retry, and updates ResourceFilters to use sentinel values so “All …” options don’t collide with real IDs and the Department dropdown maps over all departments. One key REQ-3 gating requirement (blocking filter rendering until the departments query has completed successfully or failed) is not fully verifiable from the truncated SearchPage diff because `isFetched` is destructured but not shown being used to gate rendering when `departments` is still undefined.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Add backend canister query method `isCallerAdmin()` implemented exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
-      "reason": "No backend file changes are shown, and there is no evidence that `backend/main.mo` was modified or that `isCallerAdmin()` was added/exported.",
+      "id": "REQ-3",
+      "requirement": "Block filter rendering (or show loading/skeleton) until the actor is ready and the departments query has either fetched successfully or failed; do not treat an empty departments array as a valid loaded state.",
+      "reason": "In the visible (truncated) SearchPage code, loading is gated only by `isLoading` and error by `isError`. Although `isFetched` is destructured, its use to prevent rendering ResourceFilters while the query is not enabled / not yet fetched is not shown. If `isLoading` can be false while `departments` is still undefined (e.g., query disabled and actor not ready), ResourceFilters could render with an effectively-empty departments list, which would violate REQ-3. This cannot be confirmed as implemented due to truncation.",
       "evidence": [
-        "File diff summary lists modified files only under frontend; no `backend/main.mo` present."
+        "frontend/src/pages/SearchPage.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Admin link is now always visible to all users in the site header.",
-      "reason": "BuildRequest focuses on fixing admin access check (via backend method) and department filtering; it does not request changing navigation visibility.",
+      "description": "Introduced collision-proof sentinel values (e.g., `__sentinel_all_departments__`) for Select controls and internal conversion of empty string selections to sentinel values.",
+      "reason": "The BuildRequest requires correct dropdown options and behavior, but does not request sentinel-value infrastructure or collision-proofing implementation details.",
       "evidence": [
-        "frontend-file-summaries.txt: \"SiteHeader... Admin link is now always visible to all users.\""
+        "frontend/src/components/resources/ResourceFilters.tsx"
       ]
     },
     {
-      "description": "AdminGuard behavior changes beyond wiring to `isCallerAdmin()` (e.g., removed error state handling; access denied only when isAdmin explicitly false).",
-      "reason": "REQ-1 requires adding a backend method so AdminGuard can verify admin status; it does not request behavioral/UI logic refactors in AdminGuard beyond fixing the missing backend method issue.",
+      "description": "Added custom React Query behavior in `useGetAllDepartments` (explicit `retry: 1`, `retryDelay: 1000`, and returning overridden `isLoading`/`isFetched` derived from actor state).",
+      "reason": "The BuildRequest asks for stable loading/error behavior and retry via UI; it does not request specific retry counts/delays or altering `isFetched` semantics in the hook API.",
       "evidence": [
-        "frontend-file-summaries.txt: \"AdminGuard... removed error state handling... access denied screen only when isAdmin is explicitly false\""
-      ]
-    },
-    {
-      "description": "Home page authentication-related logic removed (e.g., removed MyPrincipalBox and auth imports/logic).",
-      "reason": "Not requested by REQ-1 or REQ-2 and outside the stated scope/non-goals.",
-      "evidence": [
-        "frontend-file-summaries.txt: \"HomePage... removed MyPrincipalBox component and all authentication-related imports/logic.\""
-      ]
-    },
-    {
-      "description": "Admin page now includes an AdminHelpSection in Resources tab.",
-      "reason": "Not requested; scope is admin access check and department filtering behavior.",
-      "evidence": [
-        "frontend-file-summaries.txt: \"AdminPage... now includes AdminHelpSection in the Resources tab.\""
-      ]
-    },
-    {
-      "description": "DepartmentManager mutation fix to pass string ID to removeDepartment.",
-      "reason": "Not requested by the BuildRequest.",
-      "evidence": [
-        "frontend-file-summaries.txt: \"DepartmentManager... fixed to pass string ID to removeDepartment mutation.\""
+        "frontend/src/features/catalog/useCatalog.ts"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/components/resources/ResourceFilters.tsx",
-    "frontend/src/features/catalog/catalogSearch.ts",
+    "frontend/src/features/catalog/useCatalog.ts",
     "frontend/src/pages/SearchPage.tsx",
     "project_state.json"
   ]

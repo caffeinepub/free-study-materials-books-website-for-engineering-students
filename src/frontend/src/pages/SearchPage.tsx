@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useGetAllDepartments } from '../features/catalog/useCatalog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, AlertCircle, RefreshCw } from 'lucide-react';
 import ResourceFilters from '../components/resources/ResourceFilters';
 import ResourceList from '../components/resources/ResourceList';
 import EmptyState from '../components/resources/EmptyState';
@@ -19,7 +20,7 @@ interface ExtendedResource extends Resource {
 }
 
 export default function SearchPage() {
-  const { data: departments, isLoading } = useGetAllDepartments();
+  const { data: departments, isLoading, isFetched, isError, error, refetch } = useGetAllDepartments();
   const [keyword, setKeyword] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
@@ -62,7 +63,52 @@ export default function SearchPage() {
     });
   }, [allResources, keyword, selectedDepartment, selectedSemester, selectedSubject, selectedType]);
 
+  // Show loading state while actor is initializing or query is loading
   if (isLoading) {
+    return (
+      <div className="container py-12">
+        <Skeleton className="h-10 w-64 mb-8" />
+        <Skeleton className="h-32 mb-8" />
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state with retry option
+  if (isError) {
+    return (
+      <div className="container py-12">
+        <div className="mb-8">
+          <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">Search Study Materials</h1>
+          <p className="text-muted-foreground">
+            Find resources by keyword or filter by department, semester, subject, and type
+          </p>
+        </div>
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Failed to Load Departments</h3>
+              <p className="text-muted-foreground mb-4 max-w-md">
+                {error instanceof Error ? error.message : 'An error occurred while loading department data.'}
+              </p>
+              <Button onClick={() => refetch()} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Render filters after successful fetch (even if departments array is empty)
+  if (!isFetched) {
     return (
       <div className="container py-12">
         <Skeleton className="h-10 w-64 mb-8" />

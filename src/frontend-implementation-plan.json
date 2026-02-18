@@ -1,32 +1,73 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Department filter dropdown state and apply filtering on Search page",
+  "title": "Fix SearchPage build failure and stabilize department dropdown behavior",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Ensure Department dropdown reflects the selected department and filters search results accordingly while keeping dependent filter reset behavior consistent.",
+      "id": "REQ-1",
+      "summary": "Resolve the SearchPage deployment build error by stabilizing the Department filter flow and any dependent catalog hooks/components used by the Search page.",
       "acceptanceCriteria": [
-        "On the Search page, selecting a Department updates the visible selected value in the Department dropdown (it no longer continues to display 'All Departments').",
-        "After selecting a Department, the displayed resources are filtered to only those belonging to that department.",
-        "Changing Department resets Semester and Subject selections (keeping current intended behavior), and the dropdowns remain consistent with the current selection state.",
-        "Selecting 'All Departments' clears the department filter and shows resources across all departments again."
+        "The frontend production build completes successfully without errors.",
+        "The Search page (frontend/src/pages/SearchPage.tsx) renders without runtime errors in both anonymous and authenticated sessions.",
+        "No changes are made to immutable frontend paths (e.g., frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SearchPage.tsx",
+          "operation": "modify",
+          "description": "Harden SearchPage’s departments/actor gating and rendering so the page never passes an effectively-unloaded departments value into ResourceFilters, and so the render path is stable for production builds (no changes to immutable frontend paths)."
+        },
+        {
+          "path": "frontend/src/components/resources/ResourceFilters.tsx",
+          "operation": "modify",
+          "description": "Adjust Department/Semester/Subject option derivation and sentinel handling to avoid invalid filtering/collisions that can break dropdown rendering during build/runtime; keep composition-only usage of existing shadcn/ui components (Verify the component's usage instructions before implementing.)"
+        },
+        {
+          "path": "frontend/src/features/catalog/useCatalog.ts",
+          "operation": "modify",
+          "description": "Refine the query state surface returned by useGetAllDepartments (actor readiness vs query readiness) so SearchPage can reliably distinguish loading vs loaded vs error without relying on implicit empty/undefined states."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Ensure the Department dropdown reliably shows all backend departments plus the default All Departments option, and that selecting/clearing a department correctly controls Semester enable/disable behavior across refetches.",
+      "acceptanceCriteria": [
+        "After departments load successfully via useGetAllDepartments, the Department dropdown shows \"All Departments\" plus one option per department returned by actor.getAllDepartments().",
+        "Selecting a specific department updates the filter state and enables the Semester dropdown; switching back to \"All Departments\" clears the department filter and disables the Semester dropdown until a department is selected again.",
+        "The dropdown options remain correct after refetching departments (e.g., after a retry or cache invalidation)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/resources/ResourceFilters.tsx",
           "operation": "modify",
-          "description": "Fix controlled Select state for Department so the selected value is reliably reflected in the trigger (avoid value/label mismatches). Ensure the 'All Departments' sentinel mapping only applies to the UI value while the callback receives a stable department id (or empty string for All). Keep Semester/Subject Select disabled/enabled logic consistent with the selected department/semester state. Verify the component's usage instructions before implementing."
+          "description": "Stop excluding real departments/semesters/subjects based on display names (e.g., do not filter out items named \"All Departments\"); only protect against sentinel ID collisions, and ensure the Select renders one option per Department returned plus the fixed \"All Departments\" item (Verify the component's usage instructions before implementing.)"
         },
         {
           "path": "frontend/src/pages/SearchPage.tsx",
           "operation": "modify",
-          "description": "Harden filter state handling for Department/Semester/Subject so selecting a Department reliably updates state, resets Semester and Subject (as intended), and passes the correct departmentId into catalog filtering. Ensure selecting 'All Departments' clears the departmentId (empty string) and results show all departments again."
+          "description": "Ensure SearchPage’s onDepartmentChange clears dependent semester/subject state when switching to \"All Departments\" (empty string) and that Semester select enablement strictly follows selectedDepartment presence."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Improve SearchPage loading and error handling to block filter rendering until actor and departments query are ready, while correctly handling a successful empty departments array.",
+      "acceptanceCriteria": [
+        "While the actor is not available and/or departments are still fetching, the Search page shows the skeleton/loading UI and does not render ResourceFilters with an effectively-empty departments list.",
+        "If the departments query fails, the Search page shows the existing error card UI with a working Retry button that triggers refetch().",
+        "If the departments query succeeds with an empty array, the Search page still renders ResourceFilters (with only the \"All Departments\" option) and does not display the loading skeleton indefinitely."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SearchPage.tsx",
+          "operation": "modify",
+          "description": "Update conditional rendering so the skeleton displays while actor/query are genuinely loading, error UI displays on failure, and ResourceFilters renders once the query has succeeded even if departments is an empty array (passing departments as a real array consistently)."
         },
         {
-          "path": "frontend/src/features/catalog/catalogSearch.ts",
+          "path": "frontend/src/features/catalog/useCatalog.ts",
           "operation": "modify",
-          "description": "Add defensive normalization for departmentId/semesterId/subjectId comparisons (e.g., consistent string handling) so selected ids from the filter UI correctly match flattened resource context and filtering does not fall back to showing all departments after selection."
+          "description": "Ensure the hook’s returned isLoading/isFetched semantics reflect actor dependency correctly, so SearchPage can reliably avoid treating an actor-not-ready state as a loaded empty departments state."
         }
       ]
     }

@@ -2,11 +2,32 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-department-selection-behavior-in-the-catalog-search-ui-so-that-when-a-user-selects-a-specific-department-instead-of-all-departments-the-selection-is-reflected-in-the-department-dropdown-and-the-results-are-filtered-accordingly-i-e-it-does-not-continue-showing-all-departments-after-selection",
-      "featureTitle": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+      "featureId": "feature-identify-and-fix-the-frontend-build-error-that-is-causing-deployment-to-fail-focusing-on-the-search-page-and-its-department-filter-dropdown-flow-and-dependent-catalog-hooks-components",
+      "featureTitle": "Identify and fix the frontend build error that is causing deployment to fail, focusing on the Search page and its Department filter/dropdown flow and dependent catalog hooks/components.",
       "files": [
         "frontend/src/components/resources/ResourceFilters.tsx",
-        "frontend/src/features/catalog/catalogSearch.ts",
+        "frontend/src/features/catalog/useCatalog.ts",
+        "frontend/src/pages/SearchPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-department-select-dropdown-in-the-search-page-filter-panel-reliably-lists-all-departments-returned-by-the-backend-not-only-the-default-all-departments-option-once-catalog-data-is-available",
+      "featureTitle": "Ensure the Department select dropdown in the Search page filter panel reliably lists all departments returned by the backend (not only the default \"All Departments\" option) once catalog data is available.",
+      "files": [
+        "frontend/src/components/resources/ResourceFilters.tsx",
         "frontend/src/pages/SearchPage.tsx"
       ],
       "components": [
@@ -20,6 +41,27 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-search-page-loading-error-handling-so-the-ui-blocks-filter-rendering-or-shows-a-loading-skeleton-state-until-the-actor-is-ready-and-the-departments-query-has-either-fetched-successfully-or-failed-do-not-treat-an-empty-departments-array-as-a-valid-loaded-state",
+      "featureTitle": "Update Search page loading/error handling so the UI blocks filter rendering (or shows a loading/skeleton state) until the actor is ready and the departments query has either fetched successfully or failed; do not treat an empty departments array as a valid loaded state.",
+      "files": [
+        "frontend/src/features/catalog/useCatalog.ts",
+        "frontend/src/pages/SearchPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

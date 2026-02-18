@@ -2,34 +2,36 @@
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
   "summary": "New project",
-  "architectural_notes": [
-    "Frontend admin guard expects backend canister to expose `isCallerAdmin()`; admin access depends on this API existing and returning correct value."
-  ],
-  "known_issues": [
-    "Admin access shows 'Access Denied' because backend is missing `isCallerAdmin()` that frontend calls (admin check fails).",
-    "Department view/filter always shows all departments even after selecting a department (selection not applied)."
-  ],
-  "isFixRequest": true,
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-department-selection-behavior-in-the-catalog-search-ui-so-that-when-a-user-selects-a-specific-department-instead-of-all-departments-the-selection-is-reflected-in-the-department-dropdown-and-the-results-are-filtered-accordingly-i-e-it-does-not-continue-showing-all-departments-after-selection",
-      "title": "Fix the department selection behavior in the catalog/search UI so that when a user selects a specific department (instead of 'All Departments'), the selection is reflected in the Department dropdown and the results are filtered accordingly (i.e., it does not continue showing all departments after selection).",
+      "id": "feature-identify-and-fix-the-frontend-build-error-that-is-causing-deployment-to-fail-focusing-on-the-search-page-and-its-department-filter-dropdown-flow-and-dependent-catalog-hooks-components",
+      "title": "Identify and fix the frontend build error that is causing deployment to fail, focusing on the Search page and its Department filter/dropdown flow and dependent catalog hooks/components.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-department-select-dropdown-in-the-search-page-filter-panel-reliably-lists-all-departments-returned-by-the-backend-not-only-the-default-all-departments-option-once-catalog-data-is-available",
+      "title": "Ensure the Department select dropdown in the Search page filter panel reliably lists all departments returned by the backend (not only the default \"All Departments\" option) once catalog data is available.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
-    }
-  ],
-  "new_feature_requests": [
+    },
     {
-      "id": "AR-1",
-      "summary": "Add a backend canister query method `isCallerAdmin()` so the frontend AdminGuard can verify whether the current caller is an admin. Implement it exactly as: `public query ({ caller }) func isCallerAdmin() : async Bool { AccessControl.isAdmin(accessControlState, caller); };` in `backend/main.mo`.",
+      "id": "feature-update-search-page-loading-error-handling-so-the-ui-blocks-filter-rendering-or-shows-a-loading-skeleton-state-until-the-actor-is-ready-and-the-departments-query-has-either-fetched-successfully-or-failed-do-not-treat-an-empty-departments-array-as-a-valid-loaded-state",
+      "title": "Update Search page loading/error handling so the UI blocks filter rendering (or shows a loading/skeleton state) until the actor is ready and the departments query has either fetched successfully or failed; do not treat an empty departments array as a valid loaded state.",
       "reqIds": [
-        "REQ-1"
+        "REQ-3"
       ],
-      "status": "pending"
+      "version": 1
     }
   ],
+  "new_feature_requests": [],
   "projectName": "PREMJI StudyHub",
   "clarification_mode": "instant",
   "clarification_rounds": 0
